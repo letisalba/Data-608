@@ -11,7 +11,7 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,tidy.opts=list(width.cutoff=60),tidy=TRUE)
 ```
 
 $~$
@@ -32,21 +32,24 @@ $~$
 
 #### Load Libraries
 ```{r, load libraries, warning=FALSE, message=FALSE}
-library(shiny)
 library(tidyverse)
 library(ggplot2)
 library(rsconnect)
 library(plotly)
+library(shiny)
 ```
+
 
 #### Load Data
 ```{r cars}
 data <- read.csv("https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv", header = TRUE)
 ```
 
+
 ```{r}
-glimpse(data)
+str(data)
 ```
+
 
 ```{r}
 summary(data)
@@ -58,99 +61,76 @@ colnames(data)
 ```
 
 
+```{r}
+colSums(is.na(data))
+```
+
 ```{r, authorizing account, echo=FALSE}
 rsconnect::setAccountInfo(name='letisalba', token='18C2DF783293E23721636AD4A43F97C6', secret='seSfGaZ7eiF653BaFtyAGHFls/Z66OE/t7Sk2b9A')
 ```
 
-
+$~$
 -------------
 
 ### Question 1:
 As a researcher, you frequently compare mortality rates from particular causes across different States. You need a visualization that will let you see (for 2010 only) the crude mortality rate, across all States, from one cause (for example, Neoplasms, which are effectively cancers). Create a visualization that allows you to rank States by crude mortality for each cause of death.
 
-```{r}
-infec_diseases <- filter(data, Year == 2010 & ICD.Chapter == 'Certain infectious and parasitic diseases')
+```{r filter data}
+infec_diseases <- filter(data, Year == '2010' & ICD.Chapter == 'Certain infectious and parasitic diseases')
 infec_diseases <- infec_diseases %>% 
   arrange(Crude.Rate)
 head(infec_diseases)
 ```
 
-```{r}
-# plot
-infec_diseases %>% 
-ggplot(aes(x = reorder(State, -Crude.Rate), y = Crude.Rate)) +
-  geom_bar(stat = "identity") +
-  theme(axis.text = element_text(size = 6), panel.background = element_rect(fill = "white")) +
-  geom_col(fill = "blue")+
-  coord_flip() +
-  xlab("State") +
-  ylab("Crude Rate") +
-  geom_text(aes(label = Crude.Rate), vjust = 0.6, hjust = -0.4, size = 2, color="black")
-```
 
 ```{r bar_plot}
-fig <- infec_diseases %>% plot_ly()
-fig <- fig %>% add_trace(x = ~Crude.Rate, y = ~State, type = 'bar',
-             text = y, textposition = 'auto',
-             marker = list(color = 'rgb(158,202,225)',
-                           line = list(color = 'rgb(8,48,107)', width = 1.5)))
-fig <- fig %>% layout(title = "Title",
+fig <- infec_diseases %>% plot_ly() %>% 
+  add_trace(x = ~Crude.Rate, y = ~State, type = 'bar', 
+            marker = list(color = 'rgb(158,202,225)', 
+                          line = list(color = 'rgb(8,48,107)', width = 1.5))) %>% 
+  layout(title = "Certain infectious and parasitic diseases",
          barmode = 'group',
-         xaxis = list(title = "Crude Rate"),
+         xaxis = list(title = "Crude rate"),
          yaxis = list(title = "States"))
 ```
 
 
-
-```{r, shinyapp}
-# Define UI for app that draws a histogram ----
+```{r}
+# Define UI for app 
 ui <- fluidPage(
-
   # App title ----
-  titlePanel("Question 1: Barchart"),
-
+  titlePanel("Crude Mortality Rate"),
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
-
     # Sidebar panel for inputs ----
     sidebarPanel(
+      # Input: 
+      selectInput(inputId = 'y','Selected ICD.Chapter:',
+                  choices = infec_diseases$ICD.Chapter,
+                  selected = 'State'),
 
-      # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
-                  label = "Number of bins:",
-                  min = 0,
-                  max = 50,
-                  value = 30)
+        width = "3"
 
     ),
 
     # Main panel for displaying outputs ----
     mainPanel(
-
-      # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
+      # Output: Create barchart
+      tabsetPanel(type = "tabs",
+                  tabPanel("Plot", plotlyOutput('distPlot'))
+     )
 
     )
   )
 )
 
-ui <- fluidPage(
-
-  sidebarPanel(
-    selectInput('y', 'ICD.Chapter', choices = "Crude.Rate", selected = 'State')
-  ),
-  mainPanel(
-    plotlyOutput('plot', height = "700px", width = "600px")
-  )
-)
-
+# Define server logic required to draw a bargraph
 server <- function(input, output) {
-
-  output$plot <- renderPlotly({fig})
+  output$distPlot <- renderPlotly({fig})
 }
 
+# Run the application
 shinyApp(ui, server)
-# runApp("my_app")
 ```
 
 
@@ -160,32 +140,132 @@ shinyApp(ui, server)
 Often you are asked whether particular States are improving their mortality rates (per cause) faster than, or slower than, the national average. Create a visualization that lets your clients see this for themselves for one cause of death at the time. Keep in mind that the national average should be weighted by the national population.
 
 
+```{r filter data 2}
+# filter data to show mortality rates
+infec_diseases_2 <- data %>% 
+  group_by(Year) %>% 
+  #filter(ICD.Chapter == "Certain infectious and parasitic diseases") %>% 
+  mutate(Crude.Rate_2 = round(
+    sum(Deaths) / sum(Population) * 100000),3) %>%
+  group_by(Year, ICD.Chapter)
+head(infec_diseases_2)
+```
+
+
+```{r q2 plot1}
+# This plot was not working out for some reason
+# state = "CA"
+# fig_2<- infec_diseases_2 %>%
+#   plot_ly(x=~Year, y=~Crude.Rate, type ='bar',
+#           #text = y, textposition = 'auto',
+#           marker = list(color = 'rgb(158,202,225)'), 
+#           name = 'State') %>% # Chart State and US Crude Rates next to one another
+#   add_trace(x=~Year, y=~Crude.Rate_2, type='bar',
+#             #text = y, textposition = 'auto',
+#             marker = list(color = 'rgb(58,200,225)'), name = 'US')  %>%
+#  layout(title = "Crude death rate by state [CA]",
+#         barmode = 'group',
+#         xaxis = list(title = "Year"),
+#         yaxis = list(title = "Crude rate"))
+# fig_2
+```
+
+
+```{r q2 plot2}
+# Trying this new plot and it came out much better than plot 1
+fig_2 <- infec_diseases_2 %>%
+  as_tibble()  %>% 
+  filter(., State == 'CA') %>% 
+  select(., Year, Crude.Rate, Crude.Rate_2) %>%
+  plot_ly(x = ~Year, y = ~Crude.Rate, type='bar',
+          text = ~Crude.Rate, textposition = 'auto',
+          marker = list(color = 'rgb(158,202,225)'), 
+          name = 'State') %>% 
+  add_trace(x = ~Year, y = ~Crude.Rate_2, type='bar',        
+            text = ~Crude.Rate_2, textposition = 'auto',
+            marker = list(color = 'rgb(58,200,225)'), name = 'CA')  %>%
+ layout(title = "Crude death rate by state [CA]",
+        barmode = 'group',
+        xaxis = list(title = "Year"),
+        yaxis = list(title = "Crude rate"))
+```
+
+
+
 ```{r}
+# Define UI for app 
+ui <- fluidPage(
+  # App title ----
+  titlePanel("Crude Mortality Rate"),
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+    sidebarPanel(
+        selectInput("select1", label = strong("State"), 
+                    choices = levels(as.factor(data$State)), 
+                    selected = 1),
+    
+        selectInput("select2", label = strong("Cause of Death"), 
+                    choices = levels(as.factor(data$ICD.Chapter)), 
+                    selected = 1),
 
+        width = "3"
+        ),
+
+    # Main panel for displaying outputs ----
+    mainPanel(
+      # Output: Create barchart
+      tabsetPanel(type = "tabs",
+                  tabPanel("Plot", plotlyOutput('distPlot2'),
+                           position = c("right"))
+     )
+
+    )
+  )
+)
+server <- function(input, output) {
+  output$distPlot2 <- renderPlotly({
+# My original plot was not able to pick between the choices in ICD.Chapter or States so I searched for different options and found someone else's code for this. Check reference below   
+    infec_diseases_2 %>% 
+            group_by(Year, ICD.Chapter) %>%
+            mutate(Crude.Rate = sum(Deaths) / sum(Population) * 100000) %>% 
+            group_by(Year, ICD.Chapter, State) %>%
+            mutate(Crude.Rate_2 = sum(Deaths) / sum(Population) * 100000) %>%
+            select(ICD.Chapter, State, Year, Crude.Rate, Crude.Rate_2) %>% 
+            filter(ICD.Chapter == input$select2, State == input$select1) %>%
+  plot_ly(x = ~Year, y = ~Crude.Rate, type='bar',
+          text = ~Crude.Rate, textposition = 'auto',
+          marker = list(color = 'rgb(158,202,225)'), 
+          name = 'State') %>% 
+  add_trace(x = ~Year, y = ~Crude.Rate_2, type='bar',        
+            text = ~Crude.Rate_2, textposition = 'auto',
+            marker = list(color = 'rgb(58,200,225)'), name = 'US')  %>%
+ layout(title = "Crude death rate per State and ICD.Chapter",
+        barmode = 'group',
+        xaxis = list(title = "Year"),
+        yaxis = list(title = "Crude rate"))
+  })
+}
+
+# Run the application
+shinyApp(ui, server)
 ```
 
 
-```{r, shinyapp2}
+$~$
 
+```{r, echo=FALSE}
+rsconnect::deployApp('/Users/letiix3/Desktop/DATA_608/module3')
 ```
 
+-------------
 
 
 
-
-
-
-
-
-
-```{r}
-#rsconnect::deployApp('path/to/your/app')
-```
-
-
-
-
+$~$
 
 #### References:
 * [Plotly](https://plotly.com/r/bar-charts/)
+* [dahsboard](https://stackoverflow.com/questions/36291489/how-do-you-integrate-2-different-shiny-apps-in-one)
+* [Shiny Dashboard Code Video](https://www.youtube.com/watch?v=XoCgToAuzsU)
+* [Code for second plot](https://rpubs.com/saayedalam/data608project3)
 
