@@ -1,0 +1,108 @@
+---
+title: "Data 608 - Final Project Proposal"
+author: "Leticia Salazar"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: united
+    highlight: kate
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+$~$
+
+# Polycystic Ovarian Syndrome (PCOS)
+
+$~$
+
+### Background: 
+
+Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect the body physically and emotionally along with the metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.
+
+$~$
+
+### Data Source:
+
+The data sets I will be using are from Kaggle collected from 10 different hospital across Kerala, India:
+
+* https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos
+
+The first data set `pcos` includes 541 entries and a total of 6 columns. The second data set `pcos_infertility` includes 541 entires and a total of 45 columns.
+
+* Units used are feet to cm
+* For Yes | No questions
+  * Yes = 1
+  * No = 0
+  
+* Blood Groups:
+  * A+ = 11
+  * A- = 12
+  * B+ = 13
+  * B- = 14
+  * O+ =15
+  * O- = 16
+  * AB+ = 17
+  * AB- = 18
+  
+* RBS means Random glucose test
+* Beta-HCG cases are mentioned as Case I and II.
+
+
+$~$
+
+### Libraries intended to use:
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(corrplot)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(shiny)
+```
+
+
+### Load data:
+
+```{r}
+pcos <- read.csv("https://raw.githubusercontent.com/letisalba/DATA_608/master/Final%20Project/csv/PCOS_infertility.csv")
+pcos_infertility <- read.csv("https://raw.githubusercontent.com/letisalba/DATA_608/master/Final%20Project/csv/PCOSData_without_infertility.csv")
+```
+
+
+### Data Exploration:
+
+Overview of the datasets I am working with
+```{r}
+glimpse(pcos)
+```
+
+```{r}
+glimpse(pcos_infertility)
+```
+
+$~$
+
+### Relevancy: 
+
+Being diagnosed almost 2 years ago with PCOS and after advocating for myself with multiple doctors over the span of 6 years I was intrigued to learn more about PCOS and explored the data out there. I didn't find much data that was easily accessible and although this isn't the dataset I had in mind, it's a start for this process. It's important to be able pay attention to it's symptoms and get treated accordingly. 
+
+$~$
+
+### Project Plan and Visualizations:
+
+Data preparation will consist of merging two csv files into one but before attempting to do this I will have to target the missing values in the dataset `pcos_infertility` such as `BMI`, `FSH.LH` and `Waist.Hip.Ratio`. I have not decided whether to use Shiny App or Dash App but I will be using interactive visualizations with Plotly to go through each category and define if there's any patterns with women with PCOS.
+
+
+$~$
+
+### References:
+* Kottarathil, P. (2020, October 11). Polycystic ovary syndrome (PCOS). Kaggle. Retrieved October 9, 2022, from https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos 
+
+* Stewart, M. M., &amp; Foster, S. (2012). PCOS awareness association. PCOS Awareness Association. Retrieved October 9, 2022, from https://www.pcosaa.org/ 
+
+* Bartlett, E., &amp; Erlich, L. (2015). Feed your fertility: Your guide to cultivating a healthy pregnancy with traditional Chinese medicine, real food, and holistic living. Fair Winds Press. 
