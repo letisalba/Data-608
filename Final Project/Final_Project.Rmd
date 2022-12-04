@@ -1,7 +1,7 @@
 ---
 title: "Data 608 - Final Project"
 author: "Leticia Salazar"
-date: "`r Sys.Date()`"
+date: "December 11, 2022"
 output:
   html_document:
     theme: united
@@ -13,11 +13,16 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+$~$
+
 # Polycystic Ovarian Syndrome (PCOS)
+
+$~$
 
 ## Overview: 
 
-Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition. It's believed that genetics and environmental factors can cause PCOS that affect the body physically and emotionally along with the metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.
+Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.
+
 
 $~$
 
@@ -25,7 +30,7 @@ Hormones that are involved in PCOS are:
 
 * **Androgens: ** aka "male hormones" are present in women with PCOS at higher levels than usual. Excess in androgens can cause symptoms such as acne, unwanted hair, thinning hair, and irregular periods.
 
-* **Insulin: ** allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesnt respond to insulin as intended therefore, evelations in blood glucose levels can be assessed. Such evelations then lead to increased production of androgen.
+* **Insulin: ** allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesn't respond to insulin as intended therefore, elevations in blood glucose levels can be assessed. Such elevations then lead to increased production of androgen.
 
 * **Progesterone: ** vital hormone for menstruation and pregnancy; lack of progesterone contributes to irregular periods.
 
@@ -35,81 +40,364 @@ PCOS Symptoms:
 
 Many of these symptoms can be attributed to other causes or go unnoticed but it is very common for PCOS to go undiagnosed for some time. Here are some symptoms that help with the diagnosis:
 
-* **Irregular periods: ** 
+* **Irregular periods: ** irregular or missed periods as are a result of not ovulating is a common signs of PCOS
 
-* **Polycystic ovaries: ** 
+* **Polycystic ovaries: ** some may develop cysts in their ovaries but some don't. Ovaries may be enlarged and follicles surrounding their eggs therefore failing to function regularly.
 
-* **Excess androgen: ** 
+* **Excess androgen: ** elevated levels of male hormones can cause excess hair and acne.
 
 $~$
 
 Other symptoms may include:
 
-* **Weight gain: ** 
+* **Weight gain: ** many people with PCOS will have weight gain or obesity that is difficult to manage.
 
-* **Fatigue: ** 
+* **Fatigue: ** increase in fatigue or low energy is also common
 
-* **Unwanted hair growth: ** 
+* **Unwanted hair growth: ** due to excess androgen, areas such as face, arms, back, chest, hand, toes and abdomen may have excess hair growth.
 
-* **Thinning hair on the head: ** 
+* **Thinning hair on the head: ** hair loss may increase in middle age for those with PCOS
 
-* **Infertility: ** 
+* **Infertility: ** PCOS is a leading cause for infertility but not everyone is the same.
 
-* **Acne: ** 
+* **Acne: ** due to hormonal changes, acne can be arise and make skin oilier than usual and cause breakout in the face, chest and upper back.
 
-* **Darkening of skin: ** 
+* **Darkening of skin: ** areas such as under arms, breasts or back of your neck may get dark, patchy or thicken
 
-* **Mood changes: ** 
+* **Mood changes: ** mood swings, depression and anxiety can increase
 
-* **Pelvic pain: ** 
+* **Pelvic pain: ** pain may occur with periods along with heavy bleeding or without bleeding
 
-* **Headaches: ** 
+* **Headaches: ** can occur due to hormonal changes
 
-* **Sleep problems: ** 
+* **Sleep problems: ** most people often suffer with problem such as insomnia or poor sleep. These arise due to many factors but a common one is having sleep apnea (sleep disorder). Even when you fall asleep you wake up as if you have not slept at all or have trouble falling asleep.
 
-* **Depression: ** 
+* **Depression: ** can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.
 
-*It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis.*
+* **It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis.** *
 
+$~$
 
-### Libraries used:
+### Relevancy: 
+
+Being diagnosed almost 2 years ago with PCOS I was intrigued to learn more and explore the data that was available. Although not much data was easily accessible this is a start to explore differences or similarities women share with their physical aspect and blood work. It's also important to be aware of symptoms experienced by PCOS because it's such symptoms that can always be misinterpreted as "too much stress" or "just lose weight" by doctors. After advocating for myself with multiple doctors over the span of 6 years I saw the true value in listening to your body and sharing my experience with others.
+
+This project will consist of merging two csv files into one but before attempting to do this my main target are the missing values in the data set `pcos_infertility` such as `BMI`, `FSH.LH` and `Waist.Hip.Ratio`, renaming columns and ensuring the data sets are manageable. I will then be using the Shiny App to have interactive visualizations with Plotly to go through each category and define any patterns women from Indian with PCOS may have. Essentially we could use these commonalities to help women all over learn to distinguish symptoms not only by the physical aspects of PCOS but also during a routine lab work.
+
+$~$
+
+### Load Libraries:
+
+These are the libraries used to explore, prepare and visualize the data
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(dplyr)
 library(corrplot)
+library(DataExplorer)
+library(hrbrthemes)
+library(ggplot2)
+
+library(rsconnect)
+library(plotly)
+library(shiny)
 ```
 
 
 ### Load data:
-```{r}
+
+$~$
+
+#### Description:
+Below is a short description of the variables of interest in the data sets:
+
+* The data sets I will be using are from [Kaggle](https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos) collected from 10 different hospital across Kerala, India:
+
+
+Things to consider and understand the data set:
+
+* Units used are feet to cm
+* For Yes | No questions
+  * Yes = 1
+  * No = 0
+* Blood Groups:
+  * A+ = 11
+  * A- = 12
+  * B+ = 13
+  * B- = 14
+  * O+ =15
+  * O- = 16
+  * AB+ = 17
+  * AB- = 18
+* RBS means Random glucose test
+* Beta-HCG cases are mentioned as Case I and II.
+
+$~$
+
+I have included the original data sets in my [GitHub](https://github.com/letisalba/Data_608/tree/master/Final%20Project/csv) account and read from this location. 
+```{r, echo=FALSE}
 pcos <- read.csv("https://raw.githubusercontent.com/letisalba/DATA_608/master/Final%20Project/csv/PCOS_infertility.csv")
 pcos_infertility <- read.csv("https://raw.githubusercontent.com/letisalba/DATA_608/master/Final%20Project/csv/PCOSData_without_infertility.csv")
 ```
 
 
+Lets view the `pcos` data:
+```{r, echo=FALSE}
+head(pcos, 4)
+```
+
+... And the `pcos_infertility` data:
+```{r, echo=FALSE}
+head(pcos_infertility, 4)
+```
+
+$~$
+
 ### Data Exploration:
 
-The first data set `pcos` includes 541 entries and a total of 6 columns. The second data set `pcos_infertility` includes 541 entires and a total of 45 columns
+The first data set `pcos` includes 541 observations and a total of 6 variables. The second data set `pcos_infertility` includes 541 observations and a total of 45 variables. Notice that the column names are not clear enough for readers, this will be tackled in the data preparation section.
 
-```{r}
+```{r, echo=FALSE}
 glimpse(pcos)
 ```
 
-```{r}
+```{r, echo=FALSE}
 glimpse(pcos_infertility)
+```
+
+$~$
+
+Let's look at the distribution of our data sets using histograms:
+
+`pcos` data:
+```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center', warning=FALSE, message=FALSE}
+# DataExplorer::plot_histogram(
+#   geom_histogram_args = list(alpha = 0.5, fill = "red"),
+#    data = pcos,
+#          ggtheme=theme_ipsum())
+```
+
+$~$
+
+`pcos_infertility` data:
+```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center'}
+# DataExplorer::plot_histogram(
+#   geom_histogram_args = list(alpha = 0.5, fill = "purple"),
+#    data = pcos_infertility,
+#          ggtheme=theme_ipsum())
+```
+
+
+$~$
+
+### Data Preparation:
+
+```{r}
+pcos < -mutate_all(pcos, function(x) as.numeric(as.character(x)))
+pcos_infertility <- mutate_all(pcos_infertility, function(x) as.numeric(as.character(x)))
+```
+
+```{r}
+colnames(pcos)
+```
+
+```{r}
+colnames(pcos_infertility)
+```
+
+
+
+As mentioned earlier, my data preparation will mainly consist of renaming columns, targeting missing values whether it is by replacing them with a mean, median or mode for `Marriage Status (Yrs)` and `Fast Food (Y/N)` or calculating the values as a whole as its the case of `BMI`, `FSH.LH` and `Waist.Hip.Ratio`. I'll also remove columns that are duplicate or not need so that it's easier to manage when I merge my two data sets.
+
+```{r, echo=FALSE}
+# removing first two column for `pcos` data
+# pcos <- dplyr::select(pcos, -c(1:2)) 
+pcos <- dplyr::select(pcos, -c(2))
+
+# renaming columns for `pcos` data
+pcos <- pcos %>% 
+  rename("Sl.No" = "Sl..No",
+         "PCOS(Y/N)" = "PCOS..Y.N.",
+         "I beta-HCG(mIU/mL)" = "I...beta.HCG.mIU.mL.",
+         "II beta-HCG(mIU/mL)" = "II....beta.HCG.mIU.mL.",
+         "AMH(ng/mL)" = "AMH.ng.mL." )
+
+# removing columns not needed for `pcos_infertility` data
+#pcos_infertility <- dplyr::select(pcos_infertility, -c(1:2, 17:18, 26, 45))
+pcos_infertility <- dplyr::select(pcos_infertility, -c(2, 17:18, 26, 45))
+
+# renaming columns for `pcos_infertility` data
+pcos_infertility <- pcos_infertility %>% 
+  rename("Sl.No" = "Sl..No",
+         "PCOS(Y/N)" = "PCOS..Y.N.",
+         "Age(Yrs)" = "Age..yrs.",
+         "Weight(Kg)" = "Weight..Kg.",
+         "Height(Cm)" = "Height.Cm.",
+         "Blood Group" = "Blood.Group", 
+         "Pulse rate(bpm)" = "Pulse.rate.bpm.",
+         "RR(breaths/min)" = "RR..breaths.min.",
+         "Hb(g/dl)" = "Hb.g.dl.",
+         "Cycle(R/I)" = "Cycle.R.I.",
+         "Cycle length(days)" = "Cycle.length.days.",
+         "Marriage Status(Yrs)" = "Marraige.Status..Yrs.",
+         "Pregnant(Y/N)" = "Pregnant.Y.N.",
+         "No. of aborptions" = "No..of.aborptions",
+         "FSH(mIU/mL)" = "FSH.mIU.mL.",
+         "LH(mIU/mL)" = "LH.mIU.mL.",
+         "FSH/LH" = "FSH.LH",
+         "Hip(inch)" = "Hip.inch.",
+         "Waist(inch)" = "Waist.inch.",
+         "Waist-Hip Ratio" = "Waist.Hip.Ratio",
+         "TSH(mIU/L)" = "TSH..mIU.L.",
+         "PRL(ng/mL)" = "PRL.ng.mL.",
+         "Vit D3(ng/mL)" = "Vit.D3..ng.mL.",
+         "PRG(ng/mL)" = "PRG.ng.mL.",
+         "RBS(mg/dl)" = "RBS.mg.dl.",
+         "Weight gain(Y/N)" = "Weight.gain.Y.N.",
+         "hair growth(Y/N)" = "hair.growth.Y.N.",
+         "Skin darkening(Y/N)" = "Skin.darkening..Y.N.",
+         "Hair loss(Y/N)" = "Hair.loss.Y.N.",
+         "Pimples(Y/N)" = "Pimples.Y.N.",
+         "Fast food(Y/N)" = "Fast.food..Y.N.",
+         "Reg.Exercise(Y/N)" = "Reg.Exercise.Y.N.",
+         "BP Systolic(mmHg)" = "BP._Systolic..mmHg.",
+         "BP Diastolic(mmHg)" = "BP._Diastolic..mmHg.",
+         "Follicle No.(L)" = "Follicle.No...L.",
+         "Follicle No.(R)" = "Follicle.No...R.",
+         "Avg. F size(L)(mm)" = "Avg..F.size..L...mm.",
+         "Avg. F size(R)(mm)" = "Avg..F.size..R...mm.",
+         "Endometrium(mm)" = "Endometrium..mm.")
+```
+$~$
+
+Here's the results after part 1 of the preparation process:
+```{r}
+# merge data sets
+#pcos_data <- merge(pcos, pcos_infertility, by= "PCOS(Y/N)")
+pcos_data <- merge(pcos, pcos_infertility,  by=c("Sl.No","PCOS(Y/N)"))
+#pcos_data <- pcos_data[,-6]
+head(pcos_data)
+```
+
+$~$
+
+Checking for missing data:
+```{r, echo=FALSE}
+# missing data
+colSums(is.na(pcos_data))
+```
+$~$
+
+For part 2, I tackled the missing values by first transforming `Height` from cm to m, calculated `BMI`, `Waist-hip ratio`  and `FSH/LH`. Then after careful consideration to the data, I decided to use the median number to replace the missing values in `Marriage Status (Yrs)` and `Fast food (Y/N)` since it didn't disrupt the data's distribution.
+```{r, echo=FALSE, warning=FALSE}
+# convert Height from cm to m
+pcos_data$"Height(Cm)" <- round((pcos_data$"Height(Cm)" * 0.01),1)
+
+pcos_data <- pcos_data %>% 
+  rename("Height(M)" = "Height(Cm)")
+
+# calculate BMI
+pcos_data$BMI <- round((pcos_data$"Weight(Kg)" / pcos_data$"Height(M)"^2), 1)
+
+# calculate waist-hip ratio
+pcos_data$"Waist-Hip Ratio" <- round((pcos_data$"Waist(inch)" / pcos_data$"Hip(inch)"),2)
+
+# calculate FSH/LH
+pcos_data$"FSH/LH" <- round((pcos_data$"FSH(mIU/mL)"/pcos_data$"LH(mIU/mL)"),2)
+
+# calculate Marriage Status
+pcos_data$"Marriage Status(Yrs)"[is.na(pcos_data$"Marriage Status(Yrs)")] <- median(pcos_data$"Marriage Status(Yrs)", na.rm = T)
+
+# calculate Fast food
+pcos_data$"Fast food(Y/N)"[is.na(pcos_data$"Fast food(Y/N)")] <- median(pcos_data$"Fast food(Y/N)", na.rm = T)
+
+# calculate 
+pcos_data$"AMH(ng/mL)"[is.na(pcos_data$"AMH(ng/mL)")] <- median(pcos_data$"AMH(ng/mL)", na.rm = T)
+```
+
+$~$
+
+After tidying up the data, below is the final distribution:
+```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center'}
+# DataExplorer::plot_histogram(
+#   geom_histogram_args = list(alpha = 0.5, fill = "dark green"),
+#    data = pcos_data,
+#          ggtheme=theme_ipsum())
+```
+
+
+```{r}
+colnames(pcos_data)
+```
+
+```{r}
+str(pcos_data)
+```
+```{r}
+#pcos_data$`AMH(ng/mL)` <- as.numeric(pcos_data$`AMH(ng/mL)`)
+```
+
+```{r}
+#str(pcos_data)
+```
+
+
+$~$
+
+### Plots:
+
+
+start of plotly graphs:
+
+```{r}
+ggplot(pcos_data, aes(x="Age(Yrs)", y="Weight(Kg)")) +
+    geom_point() +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+
+```{r}
+ggplot(pcos_data, aes(x="Hip(inch)", y="Waist(inch)")) +
+    geom_point() +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
 ```
 
 
 
 
-## Project Plan:
-
-* Merge the two files into one
-* Deal with missing values (such as BMI, FSH.LH, Waist.Hip.Ratio)
+```{r}
+# fig <- pcos_data %>% 
+#   plot_ly() %>% 
+#   add_trace(x = ~x, y = ~y, type = 'bar',
+#              text = y, textposition = 'auto',
+#              marker = list(color = 'rgb(158,202,225)',
+#                            line = list(color = 'rgb(8,48,107)', width = 1.5))) %>% 
+#   add_trace(x = ~x, y = ~y2, type = 'bar',
+#             text = y2, textposition = 'auto',
+#             marker = list(color = 'rgb(58,200,225)',
+#                           line = list(color = 'rgb(8,48,107)', width = 1.5))) %>% 
+#   layout(title = "January 2013 Sales Report",
+#          barmode = 'group',
+#          xaxis = list(title = ""),
+#          yaxis = list(title = ""))
+# 
+# fig
+```
 
 
 $~$
 
 ## References:
 
+* Kottarathil, P. (2020, October 11). Polycystic ovary syndrome (PCOS). Kaggle. Retrieved October 9, 2022, from https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos 
+
 * Stewart, M. M., &amp; Foster, S. (2012). PCOS awareness association. PCOS Awareness Association. Retrieved October 9, 2022, from https://www.pcosaa.org/ 
-* Bartlett, E., &amp; Erlich, L. (2015). Feed your fertility: Your guide to cultivating a healthy pregnancy with traditional Chinese medicine, real food, and holistic living. Fair Winds Press. 
+
+* Bartlett, E., &amp; Erlich, L. (2015). Feed your fertility: Your guide to cultivating a healthy pregnancy with traditional Chinese medicine, real food, and holistic living. Fair Winds Press.
+
+ 
