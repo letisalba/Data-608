@@ -90,7 +90,7 @@ colSums(is.na(pcos_data))
 ```
 
 ```{r}
-ggplot(pcos_data, aes(x="Age..yrs.", y="Weight..Kg.")) +
+ggplot(pcos_data, aes(x=pcos_data$"Age..yrs.", y=pcos_data$"Weight..Kg.")) +
     geom_point() +
   theme_ipsum() +
     theme(

@@ -170,20 +170,20 @@ Let's look at the distribution of our data sets using histograms:
 
 `pcos` data:
 ```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center', warning=FALSE, message=FALSE}
-# DataExplorer::plot_histogram(
-#   geom_histogram_args = list(alpha = 0.5, fill = "red"),
-#    data = pcos,
-#          ggtheme=theme_ipsum())
+DataExplorer::plot_histogram(
+  geom_histogram_args = list(alpha = 0.5, fill = "red"),
+   data = pcos,
+         ggtheme=theme_ipsum())
 ```
 
 $~$
 
 `pcos_infertility` data:
 ```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center'}
-# DataExplorer::plot_histogram(
-#   geom_histogram_args = list(alpha = 0.5, fill = "purple"),
-#    data = pcos_infertility,
-#          ggtheme=theme_ipsum())
+DataExplorer::plot_histogram(
+  geom_histogram_args = list(alpha = 0.5, fill = "purple"),
+   data = pcos_infertility,
+         ggtheme=theme_ipsum())
 ```
 
 
@@ -191,8 +191,8 @@ $~$
 
 ### Data Preparation:
 
-```{r}
-pcos < -mutate_all(pcos, function(x) as.numeric(as.character(x)))
+```{r, echo=FALSE}
+pcos <- mutate_all(pcos, function(x) as.numeric(as.character(x)))
 pcos_infertility <- mutate_all(pcos_infertility, function(x) as.numeric(as.character(x)))
 ```
 
@@ -273,7 +273,7 @@ Here's the results after part 1 of the preparation process:
 ```{r}
 # merge data sets
 #pcos_data <- merge(pcos, pcos_infertility, by= "PCOS(Y/N)")
-pcos_data <- merge(pcos, pcos_infertility,  by=c("Sl.No","PCOS(Y/N)"))
+pcos_data <- merge(pcos, pcos_infertility,  by=c("Sl.No"))
 #pcos_data <- pcos_data[,-6]
 head(pcos_data)
 ```
@@ -318,10 +318,10 @@ $~$
 
 After tidying up the data, below is the final distribution:
 ```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center'}
-# DataExplorer::plot_histogram(
-#   geom_histogram_args = list(alpha = 0.5, fill = "dark green"),
-#    data = pcos_data,
-#          ggtheme=theme_ipsum())
+DataExplorer::plot_histogram(
+  geom_histogram_args = list(alpha = 0.5, fill = "dark green"),
+   data = pcos_data,
+         ggtheme=theme_ipsum())
 ```
 
 
@@ -349,7 +349,17 @@ $~$
 start of plotly graphs:
 
 ```{r}
-ggplot(pcos_data, aes(x="Age(Yrs)", y="Weight(Kg)")) +
+plot(x=pcos_data$'Age(Yrs)', y=pcos_data$'Weight(Kg)')
+```
+
+
+```{r}
+plot_ly(data = pcos_data, x = ~'Age(Yrs)', y = ~'Weight(Kg)')
+```
+
+
+```{r}
+ggplot(pcos_data, aes(x='Age(Yrs)', y='Weight(Kg)')) +
     geom_point() +
   theme_ipsum() +
     theme(
@@ -359,7 +369,7 @@ ggplot(pcos_data, aes(x="Age(Yrs)", y="Weight(Kg)")) +
 
 
 ```{r}
-ggplot(pcos_data, aes(x="Hip(inch)", y="Waist(inch)")) +
+ggplot(pcos_data, aes(x=pcos_data$"Hip(inch)", y=pcos_data$"Waist(inch)")) +
     geom_point() +
   theme_ipsum() +
     theme(

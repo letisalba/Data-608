@@ -42,6 +42,9 @@ d3.csv('ue_industry.csv', data => {
         .enter().append('path')
         .attr('d', d => stackArea(d))
         .attr('class', d => 'path7')
+        // I found this website that helped me visualize what maybe missing: https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/translate
+        // Then I followed this example to apply it to this file: https://www.geeksforgeeks.org/d3-js-transform-translate-function/
+        .attr('transform', 'translate(100, -275)')
         .style('fill', d => fillScale(d.key));
 
 });
