@@ -96,10 +96,7 @@ library(corrplot)
 library(DataExplorer)
 library(hrbrthemes)
 library(ggplot2)
-
-library(rsconnect)
 library(plotly)
-library(shiny)
 ```
 
 
@@ -216,55 +213,54 @@ pcos <- dplyr::select(pcos, -c(2))
 # renaming columns for `pcos` data
 pcos <- pcos %>% 
   rename("Sl.No" = "Sl..No",
-         "PCOS(Y/N)" = "PCOS..Y.N.",
-         "I beta-HCG(mIU/mL)" = "I...beta.HCG.mIU.mL.",
-         "II beta-HCG(mIU/mL)" = "II....beta.HCG.mIU.mL.",
+         "PCOS" = "PCOS..Y.N.",
+         "Ibeta-HCG(mIU/mL)" = "I...beta.HCG.mIU.mL.",
+         "IIbeta-HCG(mIU/mL)" = "II....beta.HCG.mIU.mL.",
          "AMH(ng/mL)" = "AMH.ng.mL." )
 
 # removing columns not needed for `pcos_infertility` data
 #pcos_infertility <- dplyr::select(pcos_infertility, -c(1:2, 17:18, 26, 45))
-pcos_infertility <- dplyr::select(pcos_infertility, -c(2, 17:18, 26, 45))
+pcos_infertility <- dplyr::select(pcos_infertility, -c(2:3, 17:18, 26, 45))
 
 # renaming columns for `pcos_infertility` data
 pcos_infertility <- pcos_infertility %>% 
   rename("Sl.No" = "Sl..No",
-         "PCOS(Y/N)" = "PCOS..Y.N.",
-         "Age(Yrs)" = "Age..yrs.",
-         "Weight(Kg)" = "Weight..Kg.",
-         "Height(Cm)" = "Height.Cm.",
-         "Blood Group" = "Blood.Group", 
+         "Age(yrs)" = "Age..yrs.",
+         "Weight(kg)" = "Weight..Kg.",
+         "Height(cm)" = "Height.Cm.",
+         "Blood_Group" = "Blood.Group", 
          "Pulse rate(bpm)" = "Pulse.rate.bpm.",
          "RR(breaths/min)" = "RR..breaths.min.",
          "Hb(g/dl)" = "Hb.g.dl.",
          "Cycle(R/I)" = "Cycle.R.I.",
-         "Cycle length(days)" = "Cycle.length.days.",
-         "Marriage Status(Yrs)" = "Marraige.Status..Yrs.",
-         "Pregnant(Y/N)" = "Pregnant.Y.N.",
-         "No. of aborptions" = "No..of.aborptions",
+         "Cycle_length(days)" = "Cycle.length.days.",
+         "Marriage_Status(yrs)" = "Marraige.Status..Yrs.",
+         "Pregnant" = "Pregnant.Y.N.",
+         "No_of_abortions" = "No..of.aborptions",
          "FSH(mIU/mL)" = "FSH.mIU.mL.",
          "LH(mIU/mL)" = "LH.mIU.mL.",
-         "FSH/LH" = "FSH.LH",
-         "Hip(inch)" = "Hip.inch.",
-         "Waist(inch)" = "Waist.inch.",
-         "Waist-Hip Ratio" = "Waist.Hip.Ratio",
-         "TSH(mIU/L)" = "TSH..mIU.L.",
+         "FSH-LH" = "FSH.LH",
+         "Hip(in)" = "Hip.inch.",
+         "Waist(in)" = "Waist.inch.",
+         "Waist-Hip_Ratio" = "Waist.Hip.Ratio",
+         "TSH (mIU/L)" = "TSH..mIU.L.",
          "PRL(ng/mL)" = "PRL.ng.mL.",
-         "Vit D3(ng/mL)" = "Vit.D3..ng.mL.",
+         "Vit_D3(ng/mL)" = "Vit.D3..ng.mL.",
          "PRG(ng/mL)" = "PRG.ng.mL.",
          "RBS(mg/dl)" = "RBS.mg.dl.",
-         "Weight gain(Y/N)" = "Weight.gain.Y.N.",
-         "hair growth(Y/N)" = "hair.growth.Y.N.",
-         "Skin darkening(Y/N)" = "Skin.darkening..Y.N.",
-         "Hair loss(Y/N)" = "Hair.loss.Y.N.",
-         "Pimples(Y/N)" = "Pimples.Y.N.",
-         "Fast food(Y/N)" = "Fast.food..Y.N.",
-         "Reg.Exercise(Y/N)" = "Reg.Exercise.Y.N.",
-         "BP Systolic(mmHg)" = "BP._Systolic..mmHg.",
-         "BP Diastolic(mmHg)" = "BP._Diastolic..mmHg.",
-         "Follicle No.(L)" = "Follicle.No...L.",
-         "Follicle No.(R)" = "Follicle.No...R.",
-         "Avg. F size(L)(mm)" = "Avg..F.size..L...mm.",
-         "Avg. F size(R)(mm)" = "Avg..F.size..R...mm.",
+         "Weight_gain" = "Weight.gain.Y.N.",
+         "hair_growth" = "hair.growth.Y.N.",
+         "Skin_darkening" = "Skin.darkening..Y.N.",
+         "Hair_loss" = "Hair.loss.Y.N.",
+         "Pimples" = "Pimples.Y.N.",
+         "Fast_food" = "Fast.food..Y.N.",
+         "Reg_Exercise" = "Reg.Exercise.Y.N.",
+         "BP_Systolic(mmHg)" = "BP._Systolic..mmHg.",
+         "BP_Diastolic(mmHg)" = "BP._Diastolic..mmHg.",
+         "Follicle_No(L)" = "Follicle.No...L.",
+         "Follicle_No(R)" = "Follicle.No...R.",
+         "Avg_F_size(L)(mm)" = "Avg..F.size..L...mm.",
+         "Avg_F_size(R)(mm)" = "Avg..F.size..R...mm.",
          "Endometrium(mm)" = "Endometrium..mm.")
 ```
 $~$
@@ -272,9 +268,7 @@ $~$
 Here's the results after part 1 of the preparation process:
 ```{r}
 # merge data sets
-#pcos_data <- merge(pcos, pcos_infertility, by= "PCOS(Y/N)")
 pcos_data <- merge(pcos, pcos_infertility,  by=c("Sl.No"))
-#pcos_data <- pcos_data[,-6]
 head(pcos_data)
 ```
 
@@ -290,25 +284,25 @@ $~$
 For part 2, I tackled the missing values by first transforming `Height` from cm to m, calculated `BMI`, `Waist-hip ratio`  and `FSH/LH`. Then after careful consideration to the data, I decided to use the median number to replace the missing values in `Marriage Status (Yrs)` and `Fast food (Y/N)` since it didn't disrupt the data's distribution.
 ```{r, echo=FALSE, warning=FALSE}
 # convert Height from cm to m
-pcos_data$"Height(Cm)" <- round((pcos_data$"Height(Cm)" * 0.01),1)
+pcos_data$"Height(cm)" <- round((pcos_data$"Height(cm)" * 0.01),1)
 
 pcos_data <- pcos_data %>% 
-  rename("Height(M)" = "Height(Cm)")
+  rename("Height(m)" = "Height(cm)")
 
 # calculate BMI
-pcos_data$BMI <- round((pcos_data$"Weight(Kg)" / pcos_data$"Height(M)"^2), 1)
+pcos_data$BMI <- round((pcos_data$"Weight(kg)" / pcos_data$"Height(m)"^2), 1)
 
 # calculate waist-hip ratio
-pcos_data$"Waist-Hip Ratio" <- round((pcos_data$"Waist(inch)" / pcos_data$"Hip(inch)"),2)
+pcos_data$"Waist-Hip_Ratio" <- round((pcos_data$"Waist(in)" / pcos_data$"Hip(in)"),2)
 
 # calculate FSH/LH
-pcos_data$"FSH/LH" <- round((pcos_data$"FSH(mIU/mL)"/pcos_data$"LH(mIU/mL)"),2)
+pcos_data$"FSH-LH" <- round((pcos_data$"FSH(mIU/mL)"/pcos_data$"LH(mIU/mL)"),2)
 
 # calculate Marriage Status
-pcos_data$"Marriage Status(Yrs)"[is.na(pcos_data$"Marriage Status(Yrs)")] <- median(pcos_data$"Marriage Status(Yrs)", na.rm = T)
+pcos_data$"Marriage_Status(yrs)"[is.na(pcos_data$"Marriage_Status(yrs)")] <- median(pcos_data$"Marriage_Status(yrs)", na.rm = T)
 
 # calculate Fast food
-pcos_data$"Fast food(Y/N)"[is.na(pcos_data$"Fast food(Y/N)")] <- median(pcos_data$"Fast food(Y/N)", na.rm = T)
+pcos_data$"Fast_food"[is.na(pcos_data$"Fast_food")] <- median(pcos_data$"Fast_food", na.rm = T)
 
 # calculate 
 pcos_data$"AMH(ng/mL)"[is.na(pcos_data$"AMH(ng/mL)")] <- median(pcos_data$"AMH(ng/mL)", na.rm = T)
@@ -333,11 +327,7 @@ colnames(pcos_data)
 str(pcos_data)
 ```
 ```{r}
-#pcos_data$`AMH(ng/mL)` <- as.numeric(pcos_data$`AMH(ng/mL)`)
-```
-
-```{r}
-#str(pcos_data)
+#DataExplorer::create_report(pcos_data, output_file='pcos_data.html')
 ```
 
 
@@ -346,21 +336,11 @@ $~$
 ### Plots:
 
 
-start of plotly graphs:
-
-```{r}
-plot(x=pcos_data$'Age(Yrs)', y=pcos_data$'Weight(Kg)')
-```
-
-
-```{r}
-plot_ly(data = pcos_data, x = ~'Age(Yrs)', y = ~'Weight(Kg)')
-```
-
-
-```{r}
-ggplot(pcos_data, aes(x='Age(Yrs)', y='Weight(Kg)')) +
+```{r, warning=FALSE}
+ggplot(pcos_data, aes(x=pcos_data$'Age(yrs)', y=pcos_data$'Weight(kg)')) + 
     geom_point() +
+  labs(title="Scatterplot of Age(yrs) with Weight(kg)",
+        x ="Age(yrs)", y = "Weight(kg)") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
@@ -369,8 +349,38 @@ ggplot(pcos_data, aes(x='Age(Yrs)', y='Weight(Kg)')) +
 
 
 ```{r}
-ggplot(pcos_data, aes(x=pcos_data$"Hip(inch)", y=pcos_data$"Waist(inch)")) +
-    geom_point() +
+pcos_data %>% 
+  ggplot(aes(x = as.factor(PCOS), fill = PCOS)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="PCOS(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Pregnant), fill = Pregnant)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Pregnant(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Weight_gain), fill = Weight_gain)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot", 
+        x ="Weight Gain (Yes or No)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
@@ -378,25 +388,131 @@ ggplot(pcos_data, aes(x=pcos_data$"Hip(inch)", y=pcos_data$"Waist(inch)")) +
 ```
 
 
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(hair_growth), fill = hair_growth)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Hair Growth(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Skin_darkening), fill = Skin_darkening)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Skin Darkening (Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Hair_loss), fill = Hair_loss)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Hair Loss(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Pimples), fill = Pimples)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Pimples(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Fast_food), fill = Fast_food)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Fast Food(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Reg_Exercise), fill = Reg_Exercise)) +
+    geom_bar(show.legend = FALSE) + 
+  scale_x_discrete(labels=c('No', 'Yes')) +
+  labs(title="Barplot",
+        x ="Regular Exercise(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(Blood_Group), fill = Blood_Group)) +
+    geom_bar(show.legend = FALSE) +
+  labs(title="Barplot",
+        x ="Blood Groups", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(`Age(yrs)`), fill="#69b3a2")) +
+    geom_histogram(stat="count", show.legend = FALSE) +
+  labs(title="Barplot",
+        x ="Age(yrs)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+```
 
 
 ```{r}
-# fig <- pcos_data %>% 
-#   plot_ly() %>% 
-#   add_trace(x = ~x, y = ~y, type = 'bar',
-#              text = y, textposition = 'auto',
-#              marker = list(color = 'rgb(158,202,225)',
-#                            line = list(color = 'rgb(8,48,107)', width = 1.5))) %>% 
-#   add_trace(x = ~x, y = ~y2, type = 'bar',
-#             text = y2, textposition = 'auto',
-#             marker = list(color = 'rgb(58,200,225)',
-#                           line = list(color = 'rgb(8,48,107)', width = 1.5))) %>% 
-#   layout(title = "January 2013 Sales Report",
-#          barmode = 'group',
-#          xaxis = list(title = ""),
-#          yaxis = list(title = ""))
-# 
-# fig
+pcos_data %>% 
+  ggplot(aes(x = as.factor(`Weight(kg)`), fill="#69b3a2")) +
+    geom_histogram(stat="count", show.legend = FALSE) +
+  labs(title="Barplot",
+        x ="Weight(kg)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=5)
+    )
+```
+
+
+```{r}
+pcos_data %>% 
+  ggplot(aes(x = as.factor(`Marriage_Status(yrs)`), fill="#69b3a2")) +
+    geom_histogram(stat="count", show.legend = FALSE) +
+  labs(title="Barplot",
+        x ="Married status(yrs)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=5)
+    )
 ```
 
 
