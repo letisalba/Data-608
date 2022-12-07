@@ -3,10 +3,10 @@ title: "Data 608 - Final Project"
 author: "Leticia Salazar"
 date: "December 11, 2022"
 output:
+  html_notebook: default
   html_document:
     theme: united
     highlight: kate
-  html_notebook: default
 ---
 
 ```{r setup, include=FALSE}
@@ -352,19 +352,21 @@ ggplot(pcos_data, aes(x=pcos_data$'Age(yrs)', y=pcos_data$'Weight(kg)')) +
 pcos_data %>% 
   ggplot(aes(x = as.factor(PCOS), fill = PCOS)) +
     geom_bar(show.legend = FALSE) + 
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Barplot",
-        x ="PCOS(Yes or No)", y = "count") +
-  theme_ipsum() +
-    theme(
-      plot.title = element_text(size=10)
-    )
+    geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Barplot",
+          x ="PCOS(Yes or No)", y = "count") +
+   theme_ipsum() +
+      theme(
+        plot.title = element_text(size=10)
+      )
 ```
 
 ```{r}
 pcos_data %>% 
   ggplot(aes(x = as.factor(Pregnant), fill = Pregnant)) +
     geom_bar(show.legend = FALSE) + 
+    geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Pregnant(Yes or No)", y = "count") +
@@ -378,6 +380,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Weight_gain), fill = Weight_gain)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot", 
         x ="Weight Gain (Yes or No)", y = "count") +
@@ -392,6 +395,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(hair_growth), fill = hair_growth)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Hair Growth(Yes or No)", y = "count") +
@@ -405,6 +409,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Skin_darkening), fill = Skin_darkening)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Skin Darkening (Yes or No)", y = "count") +
@@ -418,6 +423,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Hair_loss), fill = Hair_loss)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Hair Loss(Yes or No)", y = "count") +
@@ -431,6 +437,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Pimples), fill = Pimples)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Pimples(Yes or No)", y = "count") +
@@ -444,6 +451,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Fast_food), fill = Fast_food)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Fast Food(Yes or No)", y = "count") +
@@ -457,6 +465,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Reg_Exercise), fill = Reg_Exercise)) +
     geom_bar(show.legend = FALSE) + 
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   scale_x_discrete(labels=c('No', 'Yes')) +
   labs(title="Barplot",
         x ="Regular Exercise(Yes or No)", y = "count") +
@@ -469,6 +478,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Blood_Group), fill = Blood_Group)) +
     geom_bar(show.legend = FALSE) +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   labs(title="Barplot",
         x ="Blood Groups", y = "count") +
   theme_ipsum() +
@@ -481,6 +491,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(`Age(yrs)`), fill="#69b3a2")) +
     geom_histogram(stat="count", show.legend = FALSE) +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   labs(title="Barplot",
         x ="Age(yrs)", y = "count") +
   theme_ipsum() +
@@ -494,6 +505,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(`Weight(kg)`), fill="#69b3a2")) +
     geom_histogram(stat="count", show.legend = FALSE) +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   labs(title="Barplot",
         x ="Weight(kg)", y = "count") +
   theme_ipsum() +
@@ -507,12 +519,60 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(`Marriage_Status(yrs)`), fill="#69b3a2")) +
     geom_histogram(stat="count", show.legend = FALSE) +
+  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "white") +
   labs(title="Barplot",
         x ="Married status(yrs)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=5)
     )
+```
+
+
+```{r}
+pcos_data %>% 
+ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=PCOS)) + 
+    geom_point() +
+    geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+  labs(title="Title",
+        x ="Age(yrs)", y = "Weight(kg)") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), legend.position = "none"
+    )
+```
+
+
+
+
+$~$
+
+
+```{r shiny app, eval=FALSE}
+# Use a fluid Bootstrap layout
+fluidPage(    
+  
+  # Give the page a title
+  titlePanel("PCOS in Indian Women"),
+  
+  # Generate a row with a sidebar
+  sidebarLayout(      
+    
+    # Define the sidebar with one input
+    sidebarPanel(
+      selectInput("symptom", "Symptom:", 
+                  choices=colnames(WorldPhones)),
+      hr(),
+      helpText("Data from AT&T (1961) The World's Telephones.")
+    ),
+    
+    # Create a spot for the barplot
+    mainPanel(
+      plotOutput("phonePlot")  
+    )
+    
+  )
+)
 ```
 
 
