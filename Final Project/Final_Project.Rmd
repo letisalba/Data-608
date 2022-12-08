@@ -92,18 +92,16 @@ These are the libraries used to explore, prepare and visualize the data
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(dplyr)
-library(corrplot)
 library(DataExplorer)
 library(hrbrthemes)
 library(ggplot2)
-library(plotly)
 library(gridExtra)
 ```
 
+$~$
 
 ### Load data:
 
-$~$
 
 #### Description:
 Below is a short description of the variables of interest in the data sets:
@@ -356,7 +354,7 @@ Now that the data is ready, I have created some plots to better understand the r
 
 
 * The scatter plot below shows the relationship between Age(yrs) and Weight(kg). It appears that the age and weight of the women are distributed evenly throughout as opposed to being clustered in a certain age and weight group.
-```{r, warning=FALSE}
+```{r, warning=FALSE, echo=FALSE}
 ggplot(pcos_data, aes(x=pcos_data$'Age(yrs)', y=pcos_data$'Weight(kg)')) + 
     geom_point() +
   labs(title="Scatterplot of Age(yrs) with Weight(kg)",
@@ -547,104 +545,104 @@ p_13 <- pcos_data %>%
 grid.arrange(p_10,p_11,p_12,p_13)
 ```
 
-
+$~$
 
 * Cycle length seems to be very consistent regardless of PCOS diagnosis
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+
+* Women with PCOS (blue) experience more irregular periods with a few with no PCOS(coral) do as well
+
+* With or without PCOS women's BMI fluctuate
+
+* The distribution of number of follicles is greater for those women with without PCOS.
+
+* The distribution of number of size in follicles left or right differ for those with and without PCOS
+
+* The endometrium is the inner layer. During a woman's menstrual cycle, hormones cause the endometrium to change. Estrogen causes the endometrium to thicken so that it could nourish an embryo if pregnancy occurs.
+
+```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=10}
+p14 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
-  labs(title="Title",
+  labs(title="Length of cycle based on Age",
         x ="Age(yrs)", y = "Cycle Length(days)") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
-```
 
-* Women with PCOS (blue) experience more irregular periods with a few with no PCOS(coral) do as well
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p15 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle(R/I)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
-  labs(title="Title",
+  labs(title="Type of cycle based on Age",
         x ="Age(yrs)", y = "Cycle(R/I)") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
-```
 
-* With or without PCOS women's BMI fluctuate
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p16 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=BMI, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
-  labs(title="Title",
+  labs(title="BMI based on Age",
         x ="Age(yrs)", y = "BMI") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
-```
 
-* The distribution of number of follicles is greater for those women with without PCOS.
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p17 <- pcos_data %>% 
 ggplot(aes(x=`Follicle_No(R)`, y=`Follicle_No(L)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
-  labs(title="Title",
+  labs(title="Number of Follicles",
         x ="Follicles Right", y = "Follicles Left") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
-```
 
-* The distribution of number of size in follicles left or right differ for those with and without PCOS
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p18 <- pcos_data %>% 
 ggplot(aes(x=`Avg_F_size(R)(mm)`, y=`Avg_F_size(L)(mm)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
-  labs(title="Title",
+  labs(title="Follicle size's",
         x ="Follicle size right", y = "Follicle size left") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
-```
 
-
-* The endometrium is the inner layer. During a woman's menstrual cycle, hormones cause the endometrium to change. Estrogen causes the endometrium to thicken so that it could nourish an embryo if pregnancy occurs.
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p19 <- pcos_data %>% 
 ggplot(aes(x=`Endometrium(mm)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
-  labs(title="Title",
+  labs(title="Endometrium and length of cycle(days)",
         x ="Endometrium(mm)", y = "Cycle Length(days)") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
+
+
+grid.arrange(p14,p15,p16,p17,p18,p19)
 ```
+
+
 
 
 * Women with blood type of A+, B+, and O+ reported to have PCOS more than those with blood types of A-, B-, O-, AB+ and AB-
@@ -652,6 +650,7 @@ ggplot(aes(x=`Endometrium(mm)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) 
 pcos_data %>% 
   ggplot(aes(x = Blood_Group, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
     ggtitle("Blood Group with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     theme_ipsum() +
@@ -666,6 +665,7 @@ pcos_data %>%
 pcos_data %>% 
   ggplot(aes(x = as.factor(Pregnant), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
     ggtitle("Pregnant with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No', 'Yes')) +
@@ -675,11 +675,113 @@ pcos_data %>%
     )
 ```
 
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(Weight_gain), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(hair_growth), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(Skin_darkening), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(Hair_loss), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(Pimples), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(Fast_food), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+```{r}
+pcos_data %>%
+  ggplot(aes(x = as.factor(Reg_Exercise), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pregnant with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No','Yes')) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
+    )
+```
+
+
+
 * Not surprised to see how fluctuated the cycle length is especially for women without PCOS since they tend to have a more regular cycle.
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
   ggplot(aes(x = `Cycle_length(days)`, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
     ggtitle("Cycle Length") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     theme_ipsum() +
@@ -705,7 +807,7 @@ pcos_data %>%
 ```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=10}
  pcos_data %>% 
   ggplot(aes(x = as.factor(`PRG(ng/mL)`))) +
-    geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
+  geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
   labs(title="PRG range", x ="PRG(ng/mL)", y = "count") +
   theme_ipsum() +
     theme(
@@ -717,30 +819,7 @@ $~$
 
 
 ```{r shiny app, eval=FALSE}
-# Use a fluid Bootstrap layout
-fluidPage(    
-  
-  # Give the page a title
-  titlePanel("PCOS in Indian Women"),
-  
-  # Generate a row with a sidebar
-  sidebarLayout(      
-    
-    # Define the sidebar with one input
-    sidebarPanel(
-      selectInput("symptom", "Symptom:", 
-                  choices=colnames(WorldPhones)),
-      hr(),
-      helpText("Data from AT&T (1961) The World's Telephones.")
-    ),
-    
-    # Create a spot for the barplot
-    mainPanel(
-      plotOutput("phonePlot")  
-    )
-    
-  )
-)
+
 ```
 
 
