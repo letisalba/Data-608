@@ -205,14 +205,14 @@ $~$
 Lets look at the column names of both data sets to be able to start tidying the data:
 
 pcos:
-```{r}
+```{r, echo=FALSE}
 colnames(pcos)
 ```
 
 $~$
 
 pcos_infertility:
-```{r}
+```{r,echo=FALSE}
 colnames(pcos_infertility)
 ```
 
@@ -549,13 +549,12 @@ grid.arrange(p_10,p_11,p_12,p_13)
 
 
 
-
-
+* Cycle length seems to be very consistent regardless of PCOS diagnosis
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
-    geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+    geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
   labs(title="Title",
@@ -571,7 +570,7 @@ ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) +
 pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle(R/I)`, color=as.factor(PCOS))) + 
     geom_point() +
-    geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+    geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
   labs(title="Title",
@@ -587,7 +586,7 @@ ggplot(aes(x=`Age(yrs)`, y=`Cycle(R/I)`, color=as.factor(PCOS))) +
 pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=BMI, color=as.factor(PCOS))) + 
     geom_point() +
-    geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE)+
+    geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
   labs(title="Title",
@@ -603,7 +602,7 @@ ggplot(aes(x=`Age(yrs)`, y=BMI, color=as.factor(PCOS))) +
 pcos_data %>% 
 ggplot(aes(x=`Follicle_No(R)`, y=`Follicle_No(L)`, color=as.factor(PCOS))) + 
     geom_point() +
-    geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
+    geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
   labs(title="Title",
@@ -614,10 +613,12 @@ ggplot(aes(x=`Follicle_No(R)`, y=`Follicle_No(L)`, color=as.factor(PCOS))) +
     )
 ```
 
+* The distribution of number of size in follicles left or right differ for those with and without PCOS
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
 ggplot(aes(x=`Avg_F_size(R)(mm)`, y=`Avg_F_size(L)(mm)`, color=as.factor(PCOS))) + 
     geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
   labs(title="Title",
@@ -634,6 +635,7 @@ ggplot(aes(x=`Avg_F_size(R)(mm)`, y=`Avg_F_size(L)(mm)`, color=as.factor(PCOS)))
 pcos_data %>% 
 ggplot(aes(x=`Endometrium(mm)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
     scale_colour_discrete("PCOS", labels = c("No", 
     "Yes")) +
   labs(title="Title",
@@ -645,12 +647,12 @@ ggplot(aes(x=`Endometrium(mm)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) 
 ```
 
 
-
+* Women with blood type of A+, B+, and O+ reported to have PCOS more than those with blood types of A-, B-, O-, AB+ and AB-
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
   ggplot(aes(x = Blood_Group, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-    ggtitle("title") +
+    ggtitle("Blood Group with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     theme_ipsum() +
     theme(
@@ -659,12 +661,12 @@ pcos_data %>%
 
 ```
 
-
+* Being that PCOS and infertility are linked, there are only 64 women with PCOS who are pregnant and 113 women with PCOS who aren't pregnant
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
   ggplot(aes(x = as.factor(Pregnant), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-    ggtitle("title") +
+    ggtitle("Pregnant with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No', 'Yes')) +
     theme_ipsum() +
@@ -673,7 +675,7 @@ pcos_data %>%
     )
 ```
 
-
+* Not surprised to see how fluctuated the cycle length is especially for women without PCOS since they tend to have a more regular cycle.
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
   ggplot(aes(x = `Cycle_length(days)`, fill = as.factor(PCOS))) +
@@ -686,7 +688,7 @@ pcos_data %>%
     )
 ```
 
-
+* Sadly, abortions also plays a part in PCOS for women trying to conceive. I am however happy to see that the number isn't as great for women with PCOS
 ```{r, echo=FALSE, warning=FALSE}
 pcos_data %>% 
   ggplot(aes(x = No_of_abortions, fill = as.factor(PCOS))) +
@@ -699,8 +701,8 @@ pcos_data %>%
     )
 ```
 
-
-```{r, echo=FALSE, warning=FALSE}
+* I looked into PCOS related genes 
+```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=10}
  pcos_data %>% 
   ggplot(aes(x = as.factor(`PRG(ng/mL)`))) +
     geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
