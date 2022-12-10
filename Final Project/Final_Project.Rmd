@@ -96,6 +96,7 @@ library(DataExplorer)
 library(hrbrthemes)
 library(ggplot2)
 library(gridExtra)
+library(shiny)
 ```
 
 $~$
@@ -869,13 +870,12 @@ ui <- fluidPage(
       p("- Depression: can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.", style = "font-family: 'times'; font-si20pt"),
       h5("It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis."),
       br(),
-      tabsetPanel(type = "tabs",
-                  tabPanel("Yes or No Question", plotOutput("fig1")),
+      # tabsetPanel(type = "tabs",
+      #             tabPanel("Yes or No Question", plotOutput("fig1")),
         )
       )
     )
   )
-)
 
 
 
@@ -890,33 +890,33 @@ shinyApp(ui, server)
 ```
 
 ```{r}
-shinyApp(
-  ui = fluidPage(
-    tabsetPanel(
-      tabPanel("Map", fluid = TRUE,
-               sidebarLayout(
-                 sidebarPanel(selectInput("Country", "Select Country", choices = "", selected = "")),
-                 mainPanel(
-                   htmlOutput("Attacks")
-                 )
-               )
-      ),
-      tabPanel("plot", fluid = TRUE,
-               sidebarLayout(
-                 sidebarPanel(sliderInput("year", "Year:", min = 1968, max = 2009, value = 2009, sep='')),
-                 mainPanel(fluidRow(
-                   column(7,  plotlyOutput("")),
-                   column(5, plotlyOutput(""))   
-                 )
-                 )
-               )
-      )
-    )
-  ), 
-  server = function(input, output) {
-
-  }
-)
+# shinyApp(
+#   ui = fluidPage(
+#     tabsetPanel(
+#       tabPanel("Map", fluid = TRUE,
+#                sidebarLayout(
+#                  sidebarPanel(selectInput("Country", "Select Country", choices = "", selected = "")),
+#                  mainPanel(
+#                    htmlOutput("Attacks")
+#                  )
+#                )
+#       ),
+#       tabPanel("plot", fluid = TRUE,
+#                sidebarLayout(
+#                  sidebarPanel(sliderInput("year", "Year:", min = 1968, max = 2009, value = 2009, sep='')),
+#                  mainPanel(fluidRow(
+#                    column(7,  plotlyOutput("")),
+#                    column(5, plotlyOutput(""))   
+#                  )
+#                  )
+#                )
+#       )
+#     )
+#   ), 
+#   server = function(input, output) {
+# 
+#   }
+# )
 ```
 
 
