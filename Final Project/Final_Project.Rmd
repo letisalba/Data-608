@@ -6,7 +6,6 @@ output:
   html_document:
     theme: united
     highlight: kate
-  html_notebook: default
 ---
 
 ```{r setup, include=FALSE}
@@ -441,7 +440,7 @@ Below I have statistics based on yes / no variables we were given. Out of 541 wo
 
 * 24.77% reported to exercise regularly
 
-```{r, fig.height=12, fig.width=14, echo=FALSE, warning=FALSE}
+```{r, fig.height=12, fig.width=14, echo=FALSE, warning=FALSE, message=FALSE}
 p4 <- pcos_data %>% 
   ggplot(aes(x = as.factor(PCOS), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") + 
@@ -570,7 +569,7 @@ Based on these next few plots:
 
 * I looked into PCOS related genes ... but can't make much sense on this variable.
 
-```{r, echo=FALSE, warning=FALSE, fig.height=12, fig.width=14}
+```{r, echo=FALSE, warning=FALSE, fig.height=12, fig.width=14, message=FALSE}
 p13 <- pcos_data %>% 
   ggplot(aes(x = as.factor(Blood_Group), fill = as.factor(Blood_Group))) +
     geom_bar(show.legend = FALSE) +
@@ -651,7 +650,7 @@ Below are scatterplots to show the relationship between a couple of variables an
 
 * The endometrium is the inner layer. During a woman's menstrual cycle, hormones cause the endometrium to change. Estrogen causes the endometrium to thicken so that it could nourish an embryo if pregnancy occurs. In the plot below you notice the difference in endometrium size for women with PCOS (lower) than with those without PCOS (slightly higher).
 
-```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=12}
+```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=12, message=FALSE}
 p19 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
@@ -757,7 +756,7 @@ Blood tests are very important to notice abnormalities to detect PCOS, below my 
 
 * RBS (random glucose) is fairly distributed with those with and without PCOS.
 
-```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=12}
+```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=12, message=FALSE}
 p25 <- pcos_data %>% 
 ggplot(aes(x=`Ibeta-HCG(mIU/mL)`, y=`IIbeta-HCG(mIU/mL)`, color=as.factor(PCOS))) + 
     geom_point() +
@@ -907,7 +906,7 @@ The plots below were created to visualize the percentage of women with PCOS who 
 
 * Sadly, abortions also plays a part in PCOS for women trying to conceive. I am however happy to see that the number isn't as high for women with PCOS
 
-```{r, echo=FALSE, warning=FALSE, fig.height=12, fig.width=14}
+```{r, echo=FALSE, warning=FALSE, fig.height=12, fig.width=14, message=FALSE}
 p35 <- pcos_data %>% 
   ggplot(aes(x = Blood_Group, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
