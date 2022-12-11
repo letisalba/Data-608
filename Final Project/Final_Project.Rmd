@@ -74,15 +74,7 @@ Other symptoms may include:
 
 * **Depression: ** can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.
 
-* **It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis.** *
-
-$~$
-
-### Relevancy: 
-
-Being diagnosed almost 2 years ago with PCOS I was intrigued to learn more and explore the data that was available. Although not much data was easily accessible this is a start to explore differences or similarities women share with their physical aspect and blood work. It's also important to be aware of symptoms experienced by PCOS because it's such symptoms that can always be misinterpreted as "too much stress" or "just lose weight" by doctors. After advocating for myself with multiple doctors over the span of 6 years I saw the true value in listening to your body and sharing my experience with others.
-
-This project will consist of merging two csv files into one but before attempting to do this my main target are the missing values in the data set `pcos_infertility` such as `BMI`, `FSH.LH` and `Waist.Hip.Ratio`, renaming columns and ensuring the data sets are manageable. I will then be using the Shiny App to have interactive visualizations with Plotly to go through each category and define any patterns women from Indian with PCOS may have. Essentially we could use these commonalities to help women all over learn to distinguish symptoms not only by the physical aspects of PCOS but also during a routine lab work.
+**It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis.**
 
 $~$
 
@@ -97,17 +89,17 @@ library(hrbrthemes)
 library(ggplot2)
 library(gridExtra)
 library(shiny)
+library(plotly)
+library(shinythemes)
 ```
 
 $~$
 
 ### Load data:
 
-
-#### Description:
 Below is a short description of the variables of interest in the data sets:
 
-* The data sets I will be using are from [Kaggle](https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos) collected from 10 different hospital across Kerala, India:
+* The data sets I will be using are from [Kaggle](https://www.kaggle.com/datasets/prasoonkottarathil/polycystic-ovary-syndrome-pcos) collected from 10 different hospital across Kerala, India.
 
 
 Things to consider and understand the data set:
@@ -128,8 +120,22 @@ Things to consider and understand the data set:
 * RBS means Random glucose test
 * PRG means PCOS related genes
 * Blood pressure entered as systolic and diastolic separately
-* Beta-HCG cases are mentioned as Case I and II.
-* "Cycle(R/I)" values are as follows:
+* Beta-HCG cases are mentioned as Case I and II: these are pregnancy hormones
+  * The detection of beta hCG (Case I) shows more accuracy in pregnancy test than the hCG (Case II) detection test.
+* AMH(ng/mL) detects ovarian reserve (egg count)
+* RR(breathes/min) is respiration rates
+* Hb(g/dl) is hemoglobin levels that measures how much hemoglobin is in your blood.
+* FSH is follicle stimulating hormone
+  * FSH helps control the menstrual cycle and stimulates the growth of eggs in the ovaries. FSH levels in women change throughout the menstrual cycle, with the highest levels happening just before an egg is released by the ovary. 
+* LH is luteinizing hormone (increases during ovulation)
+  * Before menopause - 5 to 25 IU/L
+  * Level peaks even higher around the middle of the menstrual cycle
+  * Level then becomes higher after menopause - 14.2 to 52.3 IU/L
+* TSH is thyroid stimulating hormone
+  * levels too high or low may be a sign of thyroid problem
+* PRL is prolactin in blood
+  * causes the breasts to grow and make milk during pregnancy and after birth. Prolactin levels are normally high for pregnant women and new mothers. Levels are normally low for nonpregnant women and for men.
+* Cycle(R/I) values are as follows:
   * 4 indicates irregular menstrual cycle
   * 2 indicates a regular menstrual cycle
 
@@ -158,10 +164,16 @@ $~$
 
 The first data set `pcos` includes 541 observations and a total of 6 variables. The second data set `pcos_infertility` includes 541 observations and a total of 45 variables. Notice that the column names are not clear enough for readers, this will be tackled in the data preparation section.
 
+$~$
+
+The `pcos` data:
 ```{r, echo=FALSE}
 glimpse(pcos)
 ```
 
+$~$
+
+The `pcos_infertility` data:
 ```{r, echo=FALSE}
 glimpse(pcos_infertility)
 ```
@@ -171,7 +183,7 @@ $~$
 Let's look at the distribution of our data sets using histograms:
 
 `pcos` data:
-```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center', warning=FALSE, message=FALSE}
+```{r, fig.height = 5, fig.width = 10, echo=FALSE, fig.align='center', warning=FALSE, message=FALSE, eval=TRUE}
 DataExplorer::plot_histogram(
   geom_histogram_args = list(alpha = 0.5, fill = "red"),
    data = pcos,
@@ -181,7 +193,7 @@ DataExplorer::plot_histogram(
 $~$
 
 `pcos_infertility` data:
-```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center'}
+```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center', warning=FALSE, eval=TRUE}
 DataExplorer::plot_histogram(
   geom_histogram_args = list(alpha = 0.5, fill = "purple"),
    data = pcos_infertility,
@@ -193,7 +205,7 @@ $~$
 
 ### Data Preparation:
 
-Before I start the tidying process I converted the data sets as numeric since the class of some of the variables differ. 
+Before I start the cleaning process I converted the data sets as numeric since the class of some of the variables differ. 
 ```{r, echo=FALSE, warning=FALSE}
 pcos <- mutate_all(pcos, function(x) as.numeric(as.character(x)))
 pcos_infertility <- mutate_all(pcos_infertility, function(x) as.numeric(as.character(x)))
@@ -203,21 +215,21 @@ $~$
 
 Lets look at the column names of both data sets to be able to start tidying the data:
 
-pcos:
+`pcos`:
 ```{r, echo=FALSE}
 colnames(pcos)
 ```
 
 $~$
 
-pcos_infertility:
+`pcos_infertility`:
 ```{r,echo=FALSE}
 colnames(pcos_infertility)
 ```
 
 $~$
 
-As mentioned earlier, my data preparation will mainly consist of renaming columns, targeting missing values whether it is by replacing them with a mean, median or mode for `Marriage Status (Yrs)` and `Fast Food (Y/N)` or calculating the values as a whole as its the case of `BMI`, `FSH.LH` and `Waist.Hip.Ratio`. I'll also remove columns that are duplicate or not need so that it's easier to manage when I merge my two data sets.
+As mentioned earlier, my data preparation will mainly consist of renaming columns, targeting missing values whether it is by replacing them with a mean, median or mode for `Marriage Status (Yrs)` and `Fast Food (Y/N)` or calculating the values as a whole as its the case of `BMI`, `FSH.LH` and `Waist.Hip.Ratio`. I'll also be converting certain columns to metric, remove columns that are duplicate or not need so that it's easier to manage when I merge my two data sets.
 
 ```{r, echo=FALSE}
 # removing first two column for `pcos` data
@@ -300,14 +312,21 @@ For part 2, I tackled the missing values by first transforming `Height` from cm 
 # convert Height from cm to m
 pcos_data$"Height(cm)" <- round((pcos_data$"Height(cm)" * 0.01),1)
 
+# convert hip and waist from inches to cm
+pcos_data$`Hip(in)` <- round((pcos_data$`Hip(in)` * 2.54),1)
+pcos_data$`Waist(in)` <- round((pcos_data$`Waist(in)` * 2.54),1)
+
+# renaming variables
 pcos_data <- pcos_data %>% 
-  rename("Height(m)" = "Height(cm)")
+  rename("Height(m)" = "Height(cm)",
+         "Hip(cm)" = "Hip(in)",
+         "Waist(cm)" = "Waist(in)")
 
 # calculate BMI
 pcos_data$BMI <- round((pcos_data$"Weight(kg)" / pcos_data$"Height(m)"^2), 1)
 
 # calculate waist-hip ratio
-pcos_data$"Waist-Hip_Ratio" <- round((pcos_data$"Waist(in)" / pcos_data$"Hip(in)"),2)
+pcos_data$"Waist-Hip_Ratio" <- round((pcos_data$"Waist(cm)" / pcos_data$"Hip(cm)"),2)
 
 # calculate FSH/LH
 pcos_data$"FSH-LH" <- round((pcos_data$"FSH(mIU/mL)"/pcos_data$"LH(mIU/mL)"),2)
@@ -320,12 +339,15 @@ pcos_data$"Fast_food"[is.na(pcos_data$"Fast_food")] <- median(pcos_data$"Fast_fo
 
 # calculate 
 pcos_data$"AMH(ng/mL)"[is.na(pcos_data$"AMH(ng/mL)")] <- median(pcos_data$"AMH(ng/mL)", na.rm = T)
+
+# remove 1st column
+pcos_data <- pcos_data[-1]
 ```
 
 $~$
 
 After tidying up the data, below is the final distribution:
-```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center'}
+```{r, fig.height = 10, fig.width = 10, echo=FALSE, fig.align='center', warning=FALSE, eval=TRUE}
 DataExplorer::plot_histogram(
   geom_histogram_args = list(alpha = 0.5, fill = "dark green"),
    data = pcos_data,
@@ -342,11 +364,6 @@ str(pcos_data)
 ```
 
 
-```{r}
-#DataExplorer::create_report(pcos_data, output_file='pcos_data.html')
-```
-
-
 $~$
 
 ### Plots:
@@ -354,20 +371,57 @@ $~$
 Now that the data is ready, I have created some plots to better understand the relationship of each variable.
 
 
-* The scatter plot below shows the relationship between Age(yrs) and Weight(kg). It appears that the age and weight of the women are distributed evenly throughout as opposed to being clustered in a certain age and weight group.
-```{r, warning=FALSE, echo=FALSE}
-ggplot(pcos_data, aes(x=pcos_data$'Age(yrs)', y=pcos_data$'Weight(kg)')) + 
+* It appears that the age and weight of the women are distributed evenly throughout as opposed to being clustered in a certain age and weight group.
+
+* Hip to waist counts increase for those with and without PCOS.
+
+* There's a steady relationship between random glucose and waist-hip ratio but I don't think this is valuable information.
+
+```{r, warning=FALSE, echo=FALSE, message=FALSE, fig.height=10, fig.width=12}
+p1 <- pcos_data %>% 
+  ggplot(aes(x=`Age(yrs)`, y=`Weight(kg)`, color=as.factor(PCOS))) + 
     geom_point() +
-  labs(title="Scatterplot of Age(yrs) with Weight(kg)",
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Age(yrs) with Weight(kg)",
         x ="Age(yrs)", y = "Weight(kg)") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
+
+p2 <- pcos_data %>% 
+  ggplot(aes(x=`Hip(cm)`, y=`Waist(cm)`, color=as.factor(PCOS))) + 
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Relationship between Hip(cm) and Waist(cm)",
+        x ="Hip (cm)", y = "Waist (cm)") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p3 <- pcos_data %>% 
+  ggplot(aes(x=`Waist-Hip_Ratio`, y=`RBS(mg/dl)`, color=as.factor(PCOS))) + 
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Relationship between Waist-Hip ration and Glucose",
+        x ="Waist-Hip Ratio", y = "RBS (mg/dl)") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+grid.arrange(p1,p2,p3)
 ```
 $~$
 
-Statistics based on the plots below:
+Below I have statistics based on yes / no variables we were given. Out of 541 women:
 
 * 32.72% reported to have PCOS
 
@@ -387,107 +441,116 @@ Statistics based on the plots below:
 
 * 24.77% reported to exercise regularly
 
-```{r, fig.height=10, fig.width=10, echo=FALSE}
-p1 <- pcos_data %>% 
+```{r, fig.height=12, fig.width=14, echo=FALSE, warning=FALSE}
+p4 <- pcos_data %>% 
   ggplot(aes(x = as.factor(PCOS), fill = as.factor(PCOS))) +
-    geom_bar(show.legend = FALSE) + 
-    geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No', 'Yes')) +
-    labs(title="PCOS(Y/N)", x ="PCOS(Yes or No)", y = "count") +
+    labs(title="PCOS", x ="PCOS(Yes or No)", y = "count") +
    theme_ipsum() +
       theme(
         plot.title = element_text(size=10)
       )
 
-p2 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Pregnant), fill = as.factor(Pregnant))) +
-    geom_bar(show.legend = FALSE) + 
-    geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-    scale_x_discrete(labels=c('No', 'Yes')) +
-    labs(title="Pregnant(Y/N)", x ="Pregnant(Yes or No)", y = "count") +
-  theme_ipsum() +
-    theme(
-      plot.title = element_text(size=10)
-    )
-
-p3 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Weight_gain), fill = as.factor(Weight_gain))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Weight Gain(Y/N)", x ="Weight Gain (Yes or No)", y = "count") +
-  theme_ipsum() +
-    theme(
-      plot.title = element_text(size=10)
-    )
-
-p4 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(hair_growth), fill = as.factor(hair_growth))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Hair Growth(Y/N)", x ="Hair Growth(Yes or No)", y = "count") +
-  theme_ipsum() +
-    theme(
-      plot.title = element_text(size=10)
-    )
-
 p5 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Skin_darkening), fill = as.factor(Skin_darkening))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Skin Darkening(Y/N)", x ="Skin Darkening (Yes or No)", y = "count") +
+  ggplot(aes(x = as.factor(Pregnant), fill = as.factor(Pregnant))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Pregnant", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Pregnant", x ="Pregnant(Yes or No)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
 
 p6 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Hair_loss), fill = as.factor(Hair_loss))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Hair Loss(Y/N)", x ="Hair Loss(Yes or No)", y = "count") +
+  ggplot(aes(x = as.factor(Weight_gain), fill = as.factor(Weight_gain))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Weight Gain", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Weight Gain", x ="Weight Gain (Yes or No)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
 
 p7 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Pimples), fill = as.factor(Pimples))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Pimples(Y/N)", x ="Pimples(Yes or No)", y = "count") +
+  ggplot(aes(x = as.factor(hair_growth), fill = as.factor(hair_growth))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Hair Growth", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Hair Growth", x ="Hair Growth(Yes or No)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
 
 p8 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Fast_food), fill = as.factor(Fast_food))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Fast Food(Y/N)", x ="Fast Food(Yes or No)", y = "count") +
+  ggplot(aes(x = as.factor(Skin_darkening), fill = as.factor(Skin_darkening))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Skin Darkening", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Skin Darkening", x ="Skin Darkening (Yes or No)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
 
 p9 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(Reg_Exercise), fill = as.factor(Reg_Exercise))) +
-    geom_bar(show.legend = FALSE) + 
-  geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  scale_x_discrete(labels=c('No', 'Yes')) +
-  labs(title="Regularly Exercise(Y/N)", x ="Regular Exercise(Yes or No)", y = "count") +
+  ggplot(aes(x = as.factor(Hair_loss), fill = as.factor(Hair_loss))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Hair Loss", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Hair Loss", x ="Hair Loss(Yes or No)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
 
-fig1 <- grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9)
+p10 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(Pimples), fill = as.factor(Pimples))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Pimples", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Pimples", x ="Pimples(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p11 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(Fast_food), fill = as.factor(Fast_food))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Fast Food", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Fast Food", x ="Fast Food(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p12 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(Reg_Exercise), fill = as.factor(Reg_Exercise))) +
+    geom_bar(position = "dodge") + 
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    scale_fill_discrete(name = "Regular Exercise", labels = c("No", "Yes")) +
+    scale_x_discrete(labels=c('No', 'Yes')) +
+    labs(title="Regularly Exercise", x ="Regular Exercise(Yes or No)", y = "count") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+grid.arrange(p4,p5,p6,p7,p8,p9,p10,p11,p12)
 ```
 
 
@@ -495,20 +558,24 @@ $~$
 
 Based on these next few plots:
 
-* Majority of the women in this study have the blood type of O+, B+ and A+
+* Majority of the women in this study have the blood type of O+, B+ and A+.
 
 * There is a wide range of distribution between the age of these women most falling between 23 to 38 years old.
 
-* Similarly, weight also has a wide range of distribution
+* Similarly, weight also has a wide range of distribution.
 
-* The distribution of years married also varies where majority of the women fall between the first 10 years 
+* Most of the women are between 1.5 - 1.6 meters tall (4'9" - 5'2").
 
-```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=10}
-p_10 <- pcos_data %>% 
+* The distribution of years married also varies where majority of the women fall between the first 10 years.
+
+* I looked into PCOS related genes ... but can't make much sense on this variable.
+
+```{r, echo=FALSE, warning=FALSE, fig.height=12, fig.width=14}
+p13 <- pcos_data %>% 
   ggplot(aes(x = as.factor(Blood_Group), fill = as.factor(Blood_Group))) +
     geom_bar(show.legend = FALSE) +
   geom_text(aes(label = ..count..), stat = "count", vjust = 1.5, colour = "black") +
-  labs(title="Bllod Groups",
+  labs(title="Blood Groups",
         x ="Blood Groups", y = "count") +
   scale_x_discrete(labels=c('A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-')) +
   theme_ipsum() +
@@ -516,37 +583,61 @@ p_10 <- pcos_data %>%
       plot.title = element_text(size=10)
     )
 
-p_11 <- pcos_data %>% 
+p14 <- pcos_data %>% 
   ggplot(aes(x = as.factor(`Age(yrs)`))) +
     geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
   labs(title="Age range", x ="Age(yrs)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10)
     )
 
-p_12 <- pcos_data %>% 
+p15 <- pcos_data %>% 
   ggplot(aes(x = as.factor(`Weight(kg)`))) +
     geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
-  labs(title="Weight range", x ="Weight(kg)", y = "count") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    labs(title="Weight range", x ="Weight(kg)", y = "count") +
+    theme_ipsum() +
+      theme(
+        plot.title = element_text(size=10), axis.text.x = element_text(angle = 90, vjust = 1, hjust=2, size=5)
+    )
+
+p16 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`Height(m)`))) +
+    geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    labs(title="Height range", x ="Height (m)", y = "count") +
+    theme_ipsum() +
+      theme(
+        plot.title = element_text(size=10), axis.text.x = element_text(angle = 90, vjust = 1, hjust=2, size=10)
+    )
+
+p17 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`Marriage_Status(yrs)`))) +
+    geom_histogram(stat="count", show.legend = FALSE, fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    labs(title="Years married range", x ="Married status(yrs)", y = "count") +
+    theme_ipsum() +
+      theme(
+        plot.title = element_text(size=10)
+    )
+
+p18 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`PRG(ng/mL)`))) +
+  geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
+  labs(title="PRG range", x ="PRG(ng/mL)", y = "count") +
   theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 90, vjust = 1, hjust=2, size=5)
     )
 
-p_13 <- pcos_data %>% 
-  ggplot(aes(x = as.factor(`Marriage_Status(yrs)`))) +
-    geom_histogram(stat="count", show.legend = FALSE, fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
-  labs(title="Years married range", x ="Married status(yrs)", y = "count") +
-  theme_ipsum() +
-    theme(
-      plot.title = element_text(size=10)
-    )
-
-fig2 <- grid.arrange(p_10,p_11,p_12,p_13)
+grid.arrange(p13,p14,p15,p16,p17,p18)
 ```
 
 $~$
+
+Below are scatterplots to show the relationship between a couple of variables and the women's Age(yrs):
 
 * Cycle length seems to be very consistent regardless of PCOS diagnosis
 
@@ -558,10 +649,10 @@ $~$
 
 * The distribution of number of size in follicles left or right differ for those with and without PCOS
 
-* The endometrium is the inner layer. During a woman's menstrual cycle, hormones cause the endometrium to change. Estrogen causes the endometrium to thicken so that it could nourish an embryo if pregnancy occurs.
+* The endometrium is the inner layer. During a woman's menstrual cycle, hormones cause the endometrium to change. Estrogen causes the endometrium to thicken so that it could nourish an embryo if pregnancy occurs. In the plot below you notice the difference in endometrium size for women with PCOS (lower) than with those without PCOS (slightly higher).
 
-```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=10}
-p14 <- pcos_data %>% 
+```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=12}
+p19 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
@@ -574,7 +665,7 @@ ggplot(aes(x=`Age(yrs)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) +
       plot.title = element_text(size=10)
     )
 
-p15 <- pcos_data %>% 
+p20 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=`Cycle(R/I)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
@@ -587,7 +678,7 @@ ggplot(aes(x=`Age(yrs)`, y=`Cycle(R/I)`, color=as.factor(PCOS))) +
       plot.title = element_text(size=10)
     )
 
-p16 <- pcos_data %>% 
+p21 <- pcos_data %>% 
 ggplot(aes(x=`Age(yrs)`, y=BMI, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
@@ -600,7 +691,7 @@ ggplot(aes(x=`Age(yrs)`, y=BMI, color=as.factor(PCOS))) +
       plot.title = element_text(size=10)
     )
 
-p17 <- pcos_data %>% 
+p22 <- pcos_data %>% 
 ggplot(aes(x=`Follicle_No(R)`, y=`Follicle_No(L)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
@@ -613,7 +704,7 @@ ggplot(aes(x=`Follicle_No(R)`, y=`Follicle_No(L)`, color=as.factor(PCOS))) +
       plot.title = element_text(size=10)
     )
 
-p18 <- pcos_data %>% 
+p23 <- pcos_data %>% 
 ggplot(aes(x=`Avg_F_size(R)(mm)`, y=`Avg_F_size(L)(mm)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
@@ -626,7 +717,7 @@ ggplot(aes(x=`Avg_F_size(R)(mm)`, y=`Avg_F_size(L)(mm)`, color=as.factor(PCOS)))
       plot.title = element_text(size=10)
     )
 
-p19 <- pcos_data %>% 
+p24 <- pcos_data %>% 
 ggplot(aes(x=`Endometrium(mm)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) + 
     geom_point() +
     geom_smooth(method="lm", se=FALSE) +
@@ -639,33 +730,199 @@ ggplot(aes(x=`Endometrium(mm)`, y=`Cycle_length(days)`, color=as.factor(PCOS))) 
       plot.title = element_text(size=10)
     )
 
+grid.arrange(p19,p20,p21,p22,p23,p24)
+```
 
-fig3 <- grid.arrange(p14,p15,p16,p17,p18,p19)
+$~$
+
+Blood tests are very important to notice abnormalities to detect PCOS, below my findings after examining these variables:
+
+* Pregnancy hormones are higher with those who reported to have PCOS than with those who reported to not have PCOS.
+
+* Vitamin D3 levels are spread out for those who reported with or without PCOS.
+
+* FSH/LH levels are also spread out for those who reported with or without PCOS.
+
+* Blood pressure levels seem a little off but are all in the high range.
+
+* Pulse rate (normal 60-100 bpm) and respiration rate (normal 12-20 breathes/min) seems normal for those who reported to be with or without PCOS.
+
+* The egg count and follicle growth are clustered for women who reported to have PCOS and those who don't.
+
+* TSH levels are also spread out for women who reported to have PCOS and those who don't.
+
+* Hemoglobin levels seem to be higher for those who reported to have PCOS.
+
+* PRL levels (prolactin in the blood) are consistent at 1 or 2 for those with or without PCOS.
+
+* RBS (random glucose) is fairly distributed with those with and without PCOS.
+
+```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=12}
+p25 <- pcos_data %>% 
+ggplot(aes(x=`Ibeta-HCG(mIU/mL)`, y=`IIbeta-HCG(mIU/mL)`, color=as.factor(PCOS))) + 
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Pregnancy hormone levels",
+        x ="I Beta-HCG(mIu/mL)", y = "II Beta-HCG(mIu/mL)") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p26 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`Vit_D3(ng/mL)`), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Vitamin D3 levels with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45, size = 2)
+    )
+
+p27 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`FSH-LH`), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("FSH/LH levels with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45, size = 2)
+    )
+
+p28 <- pcos_data %>% 
+ggplot(aes(x=`BP_Diastolic(mmHg)`, y=`BP_Systolic(mmHg)`, color=as.factor(PCOS))) + 
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Blood Pressure levels",
+        x ="BP_Diastolic(mmHg)", y = "BP_Systolic(mmHg)") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p29 <- pcos_data %>% 
+ggplot(aes(x=`RR(breaths/min)`, y=`Pulse rate(bpm)`, color=as.factor(PCOS))) + 
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Respiration rate vs Pulse rate(bpm)",
+        x ="RR(breaths/min)", y = "Pulse rate(bpm)") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p30 <- pcos_data %>% 
+ggplot(aes(x=`AMH(ng/mL)`, y=`FSH-LH`, color=as.factor(PCOS))) + 
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) +
+    scale_colour_discrete("PCOS", labels = c("No", 
+    "Yes")) +
+  labs(title="Ovarian reserve against follicle growth",
+        x ="Ovarian reserve", y = "Growth of ovarian follicles") +
+  theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10)
+    )
+
+p31 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`TSH (mIU/L)`), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("TSH (mIU/L) levels with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45, size = 2)
+    )
+
+p32 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`Hb(g/dl)`), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Hb(g/dl) levels with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45, size = 2)
+    )
+
+p33 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`PRL(ng/mL)`), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("PRL (ng/mL) levels with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45, size = 2)
+    )
+
+p34 <- pcos_data %>% 
+  ggplot(aes(x = as.factor(`RBS(mg/dl)`), fill = as.factor(PCOS))) +
+    geom_bar(position = "dodge") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("RBS (mg/dl) levels with PCOS") +
+    scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
+    theme_ipsum() +
+    theme(
+      plot.title = element_text(size=10), axis.text.x = element_text(angle = 45, size = 2)
+    )
+
+
+grid.arrange(p25,p26,p27,p28,p29,p30,p31,p32,p33,p34)
 ```
 
 
+$~$
 
+The plots below were created to visualize the percentage of women with PCOS who experience symptoms:
 
 * Women with blood type of A+, B+, and O+ reported to have PCOS more than those with blood types of A-, B-, O-, AB+ and AB-
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+
+* Being that PCOS and infertility are linked, there are 11.83% of women who reported to being pregnant with PCOS and 20.89% who reported not being pregnant with PCOS.
+
+* There are 22.37% of women who reported to experience weight gain with PCOS and 23.24% reported to not experience weight gain with PCOS.
+
+* There are 18.67% of women who reported to experience hair growth with PCOS and 14.05% reported to not experience hair growth with PCOS.
+
+* There are 20.33% of women who reported to experience skin darkening with PCOS and 12.38% reported to not experience skin darkening with PCOS.
+
+* There are 18.85% of women who reported to experience hair loss with PCOS and 13.86% reported to not experience hair loss with PCOS.
+
+* There are 22.74% of women who reported to experience pimples with PCOS and 9.98% reported to not experience pimples with PCOS.
+
+* There are 25.13% of women who reported to consume fast food with PCOS and 7.02% reported to not consume fast food with PCOS.
+
+* There are 9.43% of women who reported to regularly exercise with PCOS and 23.29% reported to not regularly exercise with PCOS.
+
+* Not surprised to see how fluctuated the cycle length is especially for women without PCOS since they tend to have a more regular cycle.
+
+* Sadly, abortions also plays a part in PCOS for women trying to conceive. I am however happy to see that the number isn't as high for women with PCOS
+
+```{r, echo=FALSE, warning=FALSE, fig.height=12, fig.width=14}
+p35 <- pcos_data %>% 
   ggplot(aes(x = Blood_Group, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
     ggtitle("Blood Group with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-* Being that PCOS and infertility are linked, there are only 64 women with PCOS who are pregnant and 113 women with PCOS who aren't pregnant
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p36 <- pcos_data %>% 
   ggplot(aes(x = as.factor(Pregnant), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
     ggtitle("Pregnant with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No', 'Yes')) +
@@ -673,221 +930,275 @@ pcos_data %>%
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-```{r}
-pcos_data %>%
+p37 <- pcos_data %>%
   ggplot(aes(x = as.factor(Weight_gain), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Weight gain with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-```{r}
-pcos_data %>%
+p38 <- pcos_data %>%
   ggplot(aes(x = as.factor(hair_growth), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Hair growth with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-```{r}
-pcos_data %>%
+p39 <- pcos_data %>%
   ggplot(aes(x = as.factor(Skin_darkening), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Skin darkening with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-```{r}
-pcos_data %>%
+p40 <- pcos_data %>%
   ggplot(aes(x = as.factor(Hair_loss), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Hair loss with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-
-```{r}
-pcos_data %>%
+p41 <- pcos_data %>%
   ggplot(aes(x = as.factor(Pimples), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Pimples with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-```{r}
-pcos_data %>%
+p42 <- pcos_data %>%
   ggplot(aes(x = as.factor(Fast_food), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-  geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Fast food consumption with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-```{r}
-pcos_data %>%
+p43 <- pcos_data %>%
   ggplot(aes(x = as.factor(Reg_Exercise), fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
     geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Pregnant with PCOS") +
+    ggtitle("Regularly exercises with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     scale_x_discrete(labels=c('No','Yes')) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-
-
-* Not surprised to see how fluctuated the cycle length is especially for women without PCOS since they tend to have a more regular cycle.
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p44 <- pcos_data %>% 
   ggplot(aes(x = `Cycle_length(days)`, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-    geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
-    ggtitle("Cycle Length") +
+    #geom_text(aes(label = ..count..), position = position_dodge(width = 1), stat = "count", vjust = 1.5, colour = "black") +
+    ggtitle("Cycle length in days with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-* Sadly, abortions also plays a part in PCOS for women trying to conceive. I am however happy to see that the number isn't as great for women with PCOS
-```{r, echo=FALSE, warning=FALSE}
-pcos_data %>% 
+p45 <- pcos_data %>% 
   ggplot(aes(x = No_of_abortions, fill = as.factor(PCOS))) +
     geom_bar(position = "dodge") +
-    ggtitle("title") +
+    ggtitle("Number of abortions with PCOS") +
     scale_fill_discrete(name = "PCOS", labels = c("No", "Yes")) +
     theme_ipsum() +
     theme(
       plot.title = element_text(size=10), axis.text.x = element_text(angle = 45)
     )
-```
 
-* I looked into PCOS related genes 
-```{r, echo=FALSE, warning=FALSE, fig.height=10, fig.width=10}
- pcos_data %>% 
-  ggplot(aes(x = as.factor(`PRG(ng/mL)`))) +
-  geom_histogram(stat="count", show.legend = FALSE, , fill = "#69b3a2", color = "#e9ecef", alpha=0.9) +
-  labs(title="PRG range", x ="PRG(ng/mL)", y = "count") +
-  theme_ipsum() +
-    theme(
-      plot.title = element_text(size=10), axis.text.x = element_text(angle = 90, vjust = 1, hjust=2, size=5)
-    )
+grid.arrange(p35,p36,p37,p38,p39,p40,p41,p42,p43,p44,p45)
 ```
 
 $~$
 
+### Conclusion: 
+
+Being diagnosed almost 2 years ago with PCOS I was intrigued to learn more and explore the data that was available. Although not much data was easily accessible this is a start to explore differences or similarities women share with their physical aspect and blood work. It's also important to be aware of symptoms experienced by PCOS because it's such symptoms that can always be misinterpreted as "too much stress" or "lose weight" by doctors. Essentially we could use these commonalities to help women all over learn to distinguish symptoms not only by the physical aspects of PCOS but also during a routine lab work. After advocating for myself with multiple doctors over the span of 6 years I saw the true value in listening to your body and sharing my experience with others. I hope this project is able to make women aware of what to look out for, what kind of questions to ask, and to be persistent with their health because who knows our bodies better than ourselves.
+
+$~$
+
 ```{r, authorizing account, echo=FALSE}
-rsconnect::setAccountInfo(name='letisalba', token='18C2DF783293E23721636AD4A43F97C6', secret='seSfGaZ7eiF653BaFtyAGHFls/Z66OE/t7Sk2b9A')
+#rsconnect::setAccountInfo(name='letisalba', token='18C2DF783293E23721636AD4A43F97C6', secret='seSfGaZ7eiF653BaFtyAGHFls/Z66OE/t7Sk2b9A')
 ```
 
+
+```{r,warning=FALSE,eval=FALSE}
+# # Filtering data
+# #pcosdata <- filter(pcos_data)
+# 
+# #Shiny app prep
+# # Define UI for app 
+# ui <- fluidPage(
+#   # App title ----
+#   titlePanel("Polycystic Ovarian Syndrome"),
+#   # Sidebar layout with input and output definitions ----
+#   sidebarLayout(
+#     # Sidebar panel for inputs ----
+#     sidebarPanel(
+#       img(src = "pcos.jpg", height = 200, width = 200)
+#       ),
+#     mainPanel(
+#       # Output: Tabset w/ plot
+#       tabsetPanel(type = "tabs",
+#                   tabPanel("Overview", plotOutput("Overview")),
+#       h3("Overview:"),
+#       p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#       h4("Hormones that are involved in PCOS are:"),
+#       p("- Androgens: aka male hormones are present in women with PCOS at higher levels than usual. Excess in androgens can cause symptoms such as acne, unwanted hair, thinning hair, and irregular periods.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Insulin: allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesn't respond to insulin as intended therefore, elevations in blood glucose levels can be assessed. Such elevations then lead to increased production of androgen.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Progesterone: vital hormone for menstruation and pregnancy; lack of progesterone contributes to irregular periods.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#       h4("PCOS Symptoms:"),
+#       p("Many of these symptoms can be attributed to other causes or go unnoticed but it is very common for PCOS to go undiagnosed for some time. Here are some symptoms that help with the diagnosis:", style = "font-family: 'times'; font-si20pt"),
+#       p("- Irregular periods: irregular or missed periods as are a result of not ovulating is a common signs of PCOS", style = "font-family: 'times'; font-si20pt"),
+#       p("- Polycystic ovaries: some may develop cysts in their ovaries but some don't. Ovaries may be enlarged and follicles surrounding their eggs therefore failing to function regularly.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Excess androgen: elevated levels of male hormones can cause excess hair and acne.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#       p("Other symptoms may include:", style = "font-family: 'times'; font-si20pt"),
+#       p("- Weight gain: many people with PCOS will have weight gain or obesity that is difficult to manage.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Fatigue: increase in fatigue or low energy is also common", style = "font-family: 'times'; font-si20pt"),
+#       p("- Unwanted hair growth: due to excess androgen, areas such as face, arms, back, chest, hand, toes and abdomen may have excess hair growth.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Thinning hair on the head: hair loss may increase in middle age for those with PCOS", style = "font-family: 'times'; font-si20pt"),
+#       p("- Infertility: PCOS is a leading cause for infertility but not everyone is the same.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Acne: due to hormonal changes, acne can be arise and make skin oilier than usual and cause breakout in the face, chest and upper back.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Darkening of skin: areas such as under arms, breasts or back of your neck may get dark, patchy or thicken", style = "font-family: 'times'; font-si20pt"),
+#       p("- Mood changes: mood swings, depression and anxiety can increase", style = "font-family: 'times'; font-si20pt"),
+#       p("- Pelvic pain: pain may occur with periods along with heavy bleeding or without bleeding", style = "font-family: 'times'; font-si20pt"),
+#       p("- Headaches: can occur due to hormonal changes", style = "font-family: 'times'; font-si20pt"),
+#       p("- Sleep problems: most people often suffer with problem such as insomnia or poor sleep. These arise due to many factors but a common one is having sleep apnea (sleep disorder). Even when you fall asleep you wake up as if you have not slept at all or have trouble falling asleep.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Depression: can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.", style = "font-family: 'times'; font-si20pt"),
+#       h5("It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis."),
+#       br(),
+#       # tabsetPanel(type = "tabs",
+#       #             tabPanel("Yes or No Question", plotOutput("fig1")),
+#         )
+#       )
+#     )
+#   )
+# 
+# 
+# 
+# 
+# # Define server logic required to draw a bargraph
+# server <- function(input, output) {
+#   output$distPlot <- renderPlotly({p1})
+# }
+# 
+# # Run the application
+# shinyApp(ui, server)
+```
 
 ```{r}
-# Filtering data
-#pcosdata <- filter(pcos_data)
-
-#Shiny app prep
-# Define UI for app 
-ui <- fluidPage(
-  # App title ----
-  titlePanel("Polycystic Ovarian Syndrome"),
-  # Sidebar layout with input and output definitions ----
-  sidebarLayout(
-    # Sidebar panel for inputs ----
-    sidebarPanel(
-      img(src = "pcos.jpg", height = 200, width = 200)
-      ),
-    mainPanel(
-      # Output: Tabset w/ plot
-      tabsetPanel(type = "tabs",
-                  tabPanel("Overview", plotOutput("Overview")),
-      h3("Overview:"),
-      p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
-      br(),
-      h4("Hormones that are involved in PCOS are:"),
-      p("- Androgens: aka male hormones are present in women with PCOS at higher levels than usual. Excess in androgens can cause symptoms such as acne, unwanted hair, thinning hair, and irregular periods.", style = "font-family: 'times'; font-si20pt"),
-      p("- Insulin: allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesn't respond to insulin as intended therefore, elevations in blood glucose levels can be assessed. Such elevations then lead to increased production of androgen.", style = "font-family: 'times'; font-si20pt"),
-      p("- Progesterone: vital hormone for menstruation and pregnancy; lack of progesterone contributes to irregular periods.", style = "font-family: 'times'; font-si20pt"),
-      br(),
-      h4("PCOS Symptoms:"),
-      p("Many of these symptoms can be attributed to other causes or go unnoticed but it is very common for PCOS to go undiagnosed for some time. Here are some symptoms that help with the diagnosis:", style = "font-family: 'times'; font-si20pt"),
-      p("- Irregular periods: irregular or missed periods as are a result of not ovulating is a common signs of PCOS", style = "font-family: 'times'; font-si20pt"),
-      p("- Polycystic ovaries: some may develop cysts in their ovaries but some don't. Ovaries may be enlarged and follicles surrounding their eggs therefore failing to function regularly.", style = "font-family: 'times'; font-si20pt"),
-      p("- Excess androgen: elevated levels of male hormones can cause excess hair and acne.", style = "font-family: 'times'; font-si20pt"),
-      br(),
-      p("Other symptoms may include:", style = "font-family: 'times'; font-si20pt"),
-      p("- Weight gain: many people with PCOS will have weight gain or obesity that is difficult to manage.", style = "font-family: 'times'; font-si20pt"),
-      p("- Fatigue: increase in fatigue or low energy is also common", style = "font-family: 'times'; font-si20pt"),
-      p("- Unwanted hair growth: due to excess androgen, areas such as face, arms, back, chest, hand, toes and abdomen may have excess hair growth.", style = "font-family: 'times'; font-si20pt"),
-      p("- Thinning hair on the head: hair loss may increase in middle age for those with PCOS", style = "font-family: 'times'; font-si20pt"),
-      p("- Infertility: PCOS is a leading cause for infertility but not everyone is the same.", style = "font-family: 'times'; font-si20pt"),
-      p("- Acne: due to hormonal changes, acne can be arise and make skin oilier than usual and cause breakout in the face, chest and upper back.", style = "font-family: 'times'; font-si20pt"),
-      p("- Darkening of skin: areas such as under arms, breasts or back of your neck may get dark, patchy or thicken", style = "font-family: 'times'; font-si20pt"),
-      p("- Mood changes: mood swings, depression and anxiety can increase", style = "font-family: 'times'; font-si20pt"),
-      p("- Pelvic pain: pain may occur with periods along with heavy bleeding or without bleeding", style = "font-family: 'times'; font-si20pt"),
-      p("- Headaches: can occur due to hormonal changes", style = "font-family: 'times'; font-si20pt"),
-      p("- Sleep problems: most people often suffer with problem such as insomnia or poor sleep. These arise due to many factors but a common one is having sleep apnea (sleep disorder). Even when you fall asleep you wake up as if you have not slept at all or have trouble falling asleep.", style = "font-family: 'times'; font-si20pt"),
-      p("- Depression: can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.", style = "font-family: 'times'; font-si20pt"),
-      h5("It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis."),
-      br(),
-      # tabsetPanel(type = "tabs",
-      #             tabPanel("Yes or No Question", plotOutput("fig1")),
-        )
-      )
-    )
-  )
-
-
-
-
-# Define server logic required to draw a bargraph
-server <- function(input, output) {
-  output$distPlot <- renderPlotly({p1})
-}
-
-# Run the application
-shinyApp(ui, server)
+# ui = fluidPage(
+#     theme = shinytheme("spacelab"),
+#     mainPanel(
+#       tabsetPanel(
+#         tabPanel("Overview"),
+#         h3("Overview:"),
+#       p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#       h4("Hormones that are involved in PCOS are:"),
+#       p("- Androgens: aka male hormones are present in women with PCOS at higher levels than usual. Excess in androgens can cause symptoms such as acne, unwanted hair, thinning hair, and irregular periods.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Insulin: allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesn't respond to insulin as intended therefore, elevations in blood glucose levels can be assessed. Such elevations then lead to increased production of androgen.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Progesterone: vital hormone for menstruation and pregnancy; lack of progesterone contributes to irregular periods.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#       h4("PCOS Symptoms:"),
+#       p("Many of these symptoms can be attributed to other causes or go unnoticed but it is very common for PCOS to go undiagnosed for some time. Here are some symptoms that help with the diagnosis:", style = "font-family: 'times'; font-si20pt"),
+#       p("- Irregular periods: irregular or missed periods as are a result of not ovulating is a common signs of PCOS", style = "font-family: 'times'; font-si20pt"),
+#       p("- Polycystic ovaries: some may develop cysts in their ovaries but some don't. Ovaries may be enlarged and follicles surrounding their eggs therefore failing to function regularly.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Excess androgen: elevated levels of male hormones can cause excess hair and acne.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#       p("Other symptoms may include:", style = "font-family: 'times'; font-si20pt"),
+#       p("- Weight gain: many people with PCOS will have weight gain or obesity that is difficult to manage.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Fatigue: increase in fatigue or low energy is also common", style = "font-family: 'times'; font-si20pt"),
+#       p("- Unwanted hair growth: due to excess androgen, areas such as face, arms, back, chest, hand, toes and abdomen may have excess hair growth.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Thinning hair on the head: hair loss may increase in middle age for those with PCOS", style = "font-family: 'times'; font-si20pt"),
+#       p("- Infertility: PCOS is a leading cause for infertility but not everyone is the same.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Acne: due to hormonal changes, acne can be arise and make skin oilier than usual and cause breakout in the face, chest and upper back.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Darkening of skin: areas such as under arms, breasts or back of your neck may get dark, patchy or thicken", style = "font-family: 'times'; font-si20pt"),
+#       p("- Mood changes: mood swings, depression and anxiety can increase", style = "font-family: 'times'; font-si20pt"),
+#       p("- Pelvic pain: pain may occur with periods along with heavy bleeding or without bleeding", style = "font-family: 'times'; font-si20pt"),
+#       p("- Headaches: can occur due to hormonal changes", style = "font-family: 'times'; font-si20pt"),
+#       p("- Sleep problems: most people often suffer with problem such as insomnia or poor sleep. These arise due to many factors but a common one is having sleep apnea (sleep disorder). Even when you fall asleep you wake up as if you have not slept at all or have trouble falling asleep.", style = "font-family: 'times'; font-si20pt"),
+#       p("- Depression: can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.", style = "font-family: 'times'; font-si20pt"),
+#       h5("It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis."),
+#       br(),
+#         tabPanel("Tab 2",
+#                  plotOutput("fig1")),
+#         tabPanel("Tab 3"),
+#         tabPanel("Tab 4"),
+#       
+#       )
+#     )
+#   )
+# 
+# server = function(input, output) {
+#   
+# }
+# 
+# # Run the application
+# shinyApp(ui, server)
 ```
+
+```{r,warning=FALSE,message=FALSE}
+# ui <- navbarPage("PCOS",
+#   tabPanel("Overview"),
+#     h3("Overview:"),
+#       p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
+#       br(),
+#   tabPanel("Yes or No"),
+#            mainPanel(fluidRow(
+#              column(1,  plotlyOutput("plot1")),
+#              column(2, plotlyOutput("plot2"))
+#       ),
+#   tabPanel("Table")
+# 
+# )
+# )
+# 
+# server <- function(input, output) {
+#   output$plot1 <- renderPlot({p1})
+#   
+#   output$plot2 <- renderPlot({p2})
+#   
+#   
+# }
+# 
+# shinyApp(ui = ui, server = server)
+```
+
+
 
 ```{r}
 # shinyApp(
