@@ -565,7 +565,7 @@ Based on these next few plots:
 
 * Most of the women are between 1.5 - 1.6 meters tall (4'9" - 5'2").
 
-* The distribution of years married also varies where majority of the women fall between the first 10 years.
+* The distribution of years married also varies where the majority of the women fall between the first 10 years.
 
 * I looked into PCOS related genes ... but can't make much sense on this variable.
 
@@ -644,7 +644,7 @@ Below are scatterplots to show the relationship between a couple of variables an
 
 * With or without PCOS women's BMI fluctuate
 
-* The distribution of number of follicles is greater for those women with without PCOS.
+* The distribution of number of follicles is greater for those women without PCOS.
 
 * The distribution of number of size in follicles left or right differ for those with and without PCOS
 
@@ -1046,193 +1046,6 @@ Being diagnosed almost 2 years ago with PCOS I was intrigued to learn more and e
 
 $~$
 
-```{r, authorizing account, echo=FALSE}
-#rsconnect::setAccountInfo(name='letisalba', token='18C2DF783293E23721636AD4A43F97C6', secret='seSfGaZ7eiF653BaFtyAGHFls/Z66OE/t7Sk2b9A')
-```
-
-
-```{r,warning=FALSE,eval=FALSE}
-# # Filtering data
-# #pcosdata <- filter(pcos_data)
-# 
-# #Shiny app prep
-# # Define UI for app 
-# ui <- fluidPage(
-#   # App title ----
-#   titlePanel("Polycystic Ovarian Syndrome"),
-#   # Sidebar layout with input and output definitions ----
-#   sidebarLayout(
-#     # Sidebar panel for inputs ----
-#     sidebarPanel(
-#       img(src = "pcos.jpg", height = 200, width = 200)
-#       ),
-#     mainPanel(
-#       # Output: Tabset w/ plot
-#       tabsetPanel(type = "tabs",
-#                   tabPanel("Overview", plotOutput("Overview")),
-#       h3("Overview:"),
-#       p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#       h4("Hormones that are involved in PCOS are:"),
-#       p("- Androgens: aka male hormones are present in women with PCOS at higher levels than usual. Excess in androgens can cause symptoms such as acne, unwanted hair, thinning hair, and irregular periods.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Insulin: allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesn't respond to insulin as intended therefore, elevations in blood glucose levels can be assessed. Such elevations then lead to increased production of androgen.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Progesterone: vital hormone for menstruation and pregnancy; lack of progesterone contributes to irregular periods.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#       h4("PCOS Symptoms:"),
-#       p("Many of these symptoms can be attributed to other causes or go unnoticed but it is very common for PCOS to go undiagnosed for some time. Here are some symptoms that help with the diagnosis:", style = "font-family: 'times'; font-si20pt"),
-#       p("- Irregular periods: irregular or missed periods as are a result of not ovulating is a common signs of PCOS", style = "font-family: 'times'; font-si20pt"),
-#       p("- Polycystic ovaries: some may develop cysts in their ovaries but some don't. Ovaries may be enlarged and follicles surrounding their eggs therefore failing to function regularly.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Excess androgen: elevated levels of male hormones can cause excess hair and acne.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#       p("Other symptoms may include:", style = "font-family: 'times'; font-si20pt"),
-#       p("- Weight gain: many people with PCOS will have weight gain or obesity that is difficult to manage.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Fatigue: increase in fatigue or low energy is also common", style = "font-family: 'times'; font-si20pt"),
-#       p("- Unwanted hair growth: due to excess androgen, areas such as face, arms, back, chest, hand, toes and abdomen may have excess hair growth.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Thinning hair on the head: hair loss may increase in middle age for those with PCOS", style = "font-family: 'times'; font-si20pt"),
-#       p("- Infertility: PCOS is a leading cause for infertility but not everyone is the same.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Acne: due to hormonal changes, acne can be arise and make skin oilier than usual and cause breakout in the face, chest and upper back.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Darkening of skin: areas such as under arms, breasts or back of your neck may get dark, patchy or thicken", style = "font-family: 'times'; font-si20pt"),
-#       p("- Mood changes: mood swings, depression and anxiety can increase", style = "font-family: 'times'; font-si20pt"),
-#       p("- Pelvic pain: pain may occur with periods along with heavy bleeding or without bleeding", style = "font-family: 'times'; font-si20pt"),
-#       p("- Headaches: can occur due to hormonal changes", style = "font-family: 'times'; font-si20pt"),
-#       p("- Sleep problems: most people often suffer with problem such as insomnia or poor sleep. These arise due to many factors but a common one is having sleep apnea (sleep disorder). Even when you fall asleep you wake up as if you have not slept at all or have trouble falling asleep.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Depression: can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.", style = "font-family: 'times'; font-si20pt"),
-#       h5("It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis."),
-#       br(),
-#       # tabsetPanel(type = "tabs",
-#       #             tabPanel("Yes or No Question", plotOutput("fig1")),
-#         )
-#       )
-#     )
-#   )
-# 
-# 
-# 
-# 
-# # Define server logic required to draw a bargraph
-# server <- function(input, output) {
-#   output$distPlot <- renderPlotly({p1})
-# }
-# 
-# # Run the application
-# shinyApp(ui, server)
-```
-
-```{r}
-# ui = fluidPage(
-#     theme = shinytheme("spacelab"),
-#     mainPanel(
-#       tabsetPanel(
-#         tabPanel("Overview"),
-#         h3("Overview:"),
-#       p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#       h4("Hormones that are involved in PCOS are:"),
-#       p("- Androgens: aka male hormones are present in women with PCOS at higher levels than usual. Excess in androgens can cause symptoms such as acne, unwanted hair, thinning hair, and irregular periods.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Insulin: allows the body to absorb glucose (blood sugar) into the cells for energy. In PCOS, the body doesn't respond to insulin as intended therefore, elevations in blood glucose levels can be assessed. Such elevations then lead to increased production of androgen.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Progesterone: vital hormone for menstruation and pregnancy; lack of progesterone contributes to irregular periods.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#       h4("PCOS Symptoms:"),
-#       p("Many of these symptoms can be attributed to other causes or go unnoticed but it is very common for PCOS to go undiagnosed for some time. Here are some symptoms that help with the diagnosis:", style = "font-family: 'times'; font-si20pt"),
-#       p("- Irregular periods: irregular or missed periods as are a result of not ovulating is a common signs of PCOS", style = "font-family: 'times'; font-si20pt"),
-#       p("- Polycystic ovaries: some may develop cysts in their ovaries but some don't. Ovaries may be enlarged and follicles surrounding their eggs therefore failing to function regularly.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Excess androgen: elevated levels of male hormones can cause excess hair and acne.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#       p("Other symptoms may include:", style = "font-family: 'times'; font-si20pt"),
-#       p("- Weight gain: many people with PCOS will have weight gain or obesity that is difficult to manage.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Fatigue: increase in fatigue or low energy is also common", style = "font-family: 'times'; font-si20pt"),
-#       p("- Unwanted hair growth: due to excess androgen, areas such as face, arms, back, chest, hand, toes and abdomen may have excess hair growth.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Thinning hair on the head: hair loss may increase in middle age for those with PCOS", style = "font-family: 'times'; font-si20pt"),
-#       p("- Infertility: PCOS is a leading cause for infertility but not everyone is the same.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Acne: due to hormonal changes, acne can be arise and make skin oilier than usual and cause breakout in the face, chest and upper back.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Darkening of skin: areas such as under arms, breasts or back of your neck may get dark, patchy or thicken", style = "font-family: 'times'; font-si20pt"),
-#       p("- Mood changes: mood swings, depression and anxiety can increase", style = "font-family: 'times'; font-si20pt"),
-#       p("- Pelvic pain: pain may occur with periods along with heavy bleeding or without bleeding", style = "font-family: 'times'; font-si20pt"),
-#       p("- Headaches: can occur due to hormonal changes", style = "font-family: 'times'; font-si20pt"),
-#       p("- Sleep problems: most people often suffer with problem such as insomnia or poor sleep. These arise due to many factors but a common one is having sleep apnea (sleep disorder). Even when you fall asleep you wake up as if you have not slept at all or have trouble falling asleep.", style = "font-family: 'times'; font-si20pt"),
-#       p("- Depression: can arise due to symptoms that can alter your appearance and have a negative impact on your emotions.", style = "font-family: 'times'; font-si20pt"),
-#       h5("It's good to note that not everyone who is diagnosed with PCOS experiences all of these symptoms and should always consult with a their PCP or OBGYN to get an accurate diagnosis."),
-#       br(),
-#         tabPanel("Tab 2",
-#                  plotOutput("fig1")),
-#         tabPanel("Tab 3"),
-#         tabPanel("Tab 4"),
-#       
-#       )
-#     )
-#   )
-# 
-# server = function(input, output) {
-#   
-# }
-# 
-# # Run the application
-# shinyApp(ui, server)
-```
-
-```{r,warning=FALSE,message=FALSE}
-# ui <- navbarPage("PCOS",
-#   tabPanel("Overview"),
-#     h3("Overview:"),
-#       p("Polycystic ovarian syndrome (PCOS) is a reproductive hormonal imbalance condition affecting as much as 5 million women in the US alone. It's believed that genetics and environmental factors can cause PCOS that affect their body physically and emotionally along with their metabolism, overall health and appearance in women. PCOS causes problems in ovaries making it hard for women to have a healthy menstrual cycle leading to the development of cysts and infertility. Although very common in women of reproductive age, PCOS may begin shortly after puberty but can also develop during the later teenage years and early adulthood.", style = "font-family: 'times'; font-si20pt"),
-#       br(),
-#   tabPanel("Yes or No"),
-#            mainPanel(fluidRow(
-#              column(1,  plotlyOutput("plot1")),
-#              column(2, plotlyOutput("plot2"))
-#       ),
-#   tabPanel("Table")
-# 
-# )
-# )
-# 
-# server <- function(input, output) {
-#   output$plot1 <- renderPlot({p1})
-#   
-#   output$plot2 <- renderPlot({p2})
-#   
-#   
-# }
-# 
-# shinyApp(ui = ui, server = server)
-```
-
-
-
-```{r}
-# shinyApp(
-#   ui = fluidPage(
-#     tabsetPanel(
-#       tabPanel("Map", fluid = TRUE,
-#                sidebarLayout(
-#                  sidebarPanel(selectInput("Country", "Select Country", choices = "", selected = "")),
-#                  mainPanel(
-#                    htmlOutput("Attacks")
-#                  )
-#                )
-#       ),
-#       tabPanel("plot", fluid = TRUE,
-#                sidebarLayout(
-#                  sidebarPanel(sliderInput("year", "Year:", min = 1968, max = 2009, value = 2009, sep='')),
-#                  mainPanel(fluidRow(
-#                    column(7,  plotlyOutput("")),
-#                    column(5, plotlyOutput(""))   
-#                  )
-#                  )
-#                )
-#       )
-#     )
-#   ), 
-#   server = function(input, output) {
-# 
-#   }
-# )
-```
-
-
-
-
-$~$
 
 ## References:
 
